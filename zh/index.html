@@ -1,0 +1,453 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>X-Foresight — 面向多视角相机的预测式世界模型，支持实时动作控制</title>
+  <meta name="description" content="X-Foresight：一种将分块自回归未来预测集成进 VLA 架构的预测式世界模型，面向以世界知识驱动的安全自动驾驶。" />
+  <meta property="og:title" content="X-Foresight" />
+  <meta property="og:description" content="一种高保真多视角相机的预测式世界模型，支持实时动作控制。PWM 团队 · 小鹏汽车" />
+  <meta property="og:image" content="../assets/img/xforesight_main.png" />
+  <link rel="icon" type="image/png" href="../assets/img/logo.png" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Source+Serif+4:opsz,wght@8..60,400;8..60,500;8..60,600;8..60,700&family=JetBrains+Mono:wght@400;500;600&family=Noto+Sans+SC:wght@400;500;600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="../assets/css/styles.css" />
+</head>
+<body>
+
+<nav class="nav">
+  <a class="brand" href="./">
+    <img src="../assets/img/logo.png" alt="logo" />
+    <span>X-Foresight</span>
+  </a>
+  <ul class="sections">
+    <li><a href="#intro">简介</a></li>
+    <li><a href="#principle">核心思想</a></li>
+    <li><a href="#architecture">架构</a></li>
+    <li><a href="#data">数据</a></li>
+    <li><a href="#demo">演示</a></li>
+    <li><a href="#results">结果</a></li>
+    <li><a href="#paper">论文</a></li>
+  </ul>
+  <span class="lang">
+    <a href="../en/">EN</a>
+    <span>·</span>
+    <a href="../zh/" class="active">中文</a>
+  </span>
+</nav>
+
+<main>
+
+  <!-- ====================== HERO ====================== -->
+  <header class="hero">
+    <h1>X-Foresight：面向多视角相机的预测式世界模型，支持实时动作控制</h1>
+    <div class="authors">PWM 团队</div>
+    <div class="affil">
+      <img src="../assets/img/logo.png" alt="XPeng" /> 小鹏汽车 · 技术报告 · 2026
+    </div>
+    <div class="badges">
+      <a class="badge muted" data-cfg="ARXIV_URL" href="#" target="_blank" rel="noopener">arXiv</a>
+      <a class="badge" href="#demo">演示</a>
+    </div>
+    <div class="hero-fig">
+      <figure>
+        <img src="../assets/img/xforesight_main.png" alt="X-Foresight 总览" />
+        <figcaption>
+          <strong>(A)</strong> X-Foresight 推理流程。
+          <strong>(B)</strong> 闭环推理可视化（仅显示前置相机）。
+          <strong>(C)</strong> 模型在多个基准上超越基线。
+        </figcaption>
+      </figure>
+    </div>
+  </header>
+
+  <!-- ====================== 01 简介 ====================== -->
+  <section id="intro">
+    <div class="container">
+      <div class="section-label">01 — 简介</div>
+      <h2>为什么 VLA 需要预测式世界建模？</h2>
+      <div class="abstract prose">
+        <p>
+          物理世界知识主要蕴含在视频中。让视觉-语言-动作（VLA）模型获得此类知识，是实现安全、可泛化规划的基础。
+          预测式世界建模通过从历史观测预测未来视频，使 VLA 内化驾驶的物理动力学与长时因果。然而朴素的逐帧预测面临两大挑战：
+          <strong>（1）</strong>视频 token 不同于语义离散的文本 token，本身低熵且冗余，模型容易退化为平凡外推；
+          <strong>（2）</strong>瞬时动力学需要密集的短时帧，而长时因果在长且可变的时段内展开。
+          我们提出 <strong>X-Foresight</strong>，将预测式世界模型直接集成进 VLA 架构，联合学习世界建模与实时动作控制。
+          其核心是<em>长时分块自回归策略</em>：在语义相距更远的<em>块</em>之间预测以避免平凡外推，同时保留块内密集帧以捕捉瞬时动力学。
+          课程学习计划逐步延长预测时段；<em>时序重要性采样</em>将监督集中到安全关键的块；
+          基于扩散模型的多视角渲染器恢复像素级的高保真外观。
+        </p>
+      </div>
+
+      <div class="kv">
+        <div class="stat"><div class="num">28万 h</div><div class="lbl">驾驶数据</div></div>
+        <div class="stat"><div class="num">3.4 千万</div><div class="lbl">片段</div></div>
+        <div class="stat"><div class="num">7</div><div class="lbl">环视相机</div></div>
+        <div class="stat"><div class="num">13.8 T</div><div class="lbl">Token</div></div>
+        <div class="stat"><div class="num">1024</div><div class="lbl">GPU（生产规模）</div></div>
+      </div>
+
+      <h3>主要贡献</h3>
+      <ul class="bullets">
+        <li><strong>长时分块自回归策略</strong>：摆脱逐帧外推的平凡性，同时保留块内密集动力学 —— 以可控代价获得更广阔的世界因果。</li>
+        <li><strong>带延展视野的课程学习（CLEF）</strong>：将块间步长从 1 秒逐步扩展到 3 秒，稳定长时预测。</li>
+        <li><strong>时序重要性采样（TIS）</strong>：以加权纵/横向加速度峰值识别并集中监督到安全关键块。</li>
+        <li><strong>基于扩散模型的多视角渲染器</strong>：嵌入自回归回路，恢复环视相机的真实质感。</li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- ====================== 02 核心思想 ====================== -->
+  <section id="principle" class="alt">
+    <div class="container">
+      <div class="section-label">02 — 核心思想</div>
+      <h2>分块预见，而非邻帧外推</h2>
+      <div class="prose">
+        <p>
+          逐帧预测在短时间内提供的监督信号过弱 —— 相邻帧差异极小，模型容易塌缩到平凡外推。简单的时间下采样
+          虽能延长预测视野，却会丢失轨迹预测所需的运动线索。
+        </p>
+        <p>
+          <strong>分块预见</strong>在 1 秒的每个块内保留短时结构，又要求模型在每个自回归步预测更长一段未来。
+          扩大块间步长（<em>延展视野</em>）能在不增加计算的前提下延长预测视野；
+          <em>时序重要性采样</em>则把有限的训练预算导向安全关键操作。
+        </p>
+      </div>
+      <figure>
+        <img src="../assets/img/predicted_future_frames.png" alt="未来帧预测的提示词组织方式" />
+        <figcaption>
+          未来帧预测的提示词组织方式。<strong>(a)</strong> 逐帧预见，每步预测一帧。
+          <strong>(b)</strong> 增大步长 <em>s</em> 的逐帧长视野预见。
+          <strong>(c)</strong> 分块预见，并行预测 <em>K</em> 个相邻帧。
+          <strong>(d)</strong> 同时使用块长 <em>K</em> 与步长 <em>s</em> 的分块长视野预见。
+          <strong>(e)</strong> 面向安全关键块的分块时序重要性采样。
+        </figcaption>
+      </figure>
+    </div>
+  </section>
+
+  <!-- ====================== 03 架构 ====================== -->
+  <section id="architecture">
+    <div class="container">
+      <div class="section-label">03 — 架构</div>
+      <h2>大型驾驶模型 + 视觉渲染器</h2>
+      <div class="prose">
+        <p>
+          X-Foresight 包含两个模块。<strong>大型驾驶模型（LDM）</strong>是一个自回归 Transformer，
+          以多视角观测、语言、自车状态为输入，每步预测三类目标：用于实时控制的自车动作、
+          表征周围空间结构的鸟瞰图（BEV），以及概括各视角未来外观的逐相机潜空间 token。
+          <strong>视觉渲染器</strong>是一个基于扩散模型的解码器，将渲染出的画面回灌给 LDM 作为新的观测，
+          形成闭环自回归。
+        </p>
+      </div>
+
+      <figure>
+        <img src="../assets/img/train_pipeline.png" alt="三阶段训练流程" />
+        <figcaption>
+          三阶段训练流程。阶段 I 与 II 分别训练 LDM 与渲染器，渲染器以真实未来轨迹为条件；
+          阶段 III 冻结 LDM，将渲染器的条件切换为 LDM 预测的未来相机 token，
+          对齐训练与推理时的数据分布。
+        </figcaption>
+      </figure>
+
+      <div class="cols2">
+        <div class="card">
+          <h3>大型驾驶模型（LDM）</h3>
+          <p>
+            多模态提示：全局系统提示之后是若干时序块
+            <code>[ l<sub>i</sub>, O<sub>i</sub>, A<sub>i</sub>, Q<sub>i</sub> ]</code> ——
+            视野文本、ViT 多视角 token、自车状态、用于触发未来变量预测的查询 token。
+            采用教师强制方式，联合优化动作、相机与 BEV 损失。
+          </p>
+        </div>
+        <div class="card">
+          <h3>视觉渲染器</h3>
+          <p>
+            基于 DiT 视频生成器与整流流（rectified flow）目标，沿用 X-World 的视-时联合注意力与 3D 因果 VAE。
+            渲染器<em>仅</em>以 LDM 的相机 token 为条件（不接入动作捷径），在恢复像素级细节的同时，
+            完全受控于 LDM 的潜空间想象。
+          </p>
+        </div>
+      </div>
+
+      <figure>
+        <img src="../assets/img/precise_mask.png" alt="半因果块稀疏注意力掩码" />
+        <figcaption>
+          <strong>半因果块稀疏注意力。</strong>每个色块代表一个允许进行注意力交互的 token 块。
+          掩码在块内保留双向注意力，使所有块都可访问全局系统提示与历史提示 token，
+          同时禁止跨块的查询 token 互相关注。两种互补模式分配到偶/奇注意力头组，
+          使块密度随序列长度线性增长。
+        </figcaption>
+      </figure>
+
+      <figure>
+        <img src="../assets/img/xforesight_pipeline.png" alt="完整系统架构" />
+        <figcaption>X-Foresight 完整架构，将 LDM 与视觉渲染器拼接为单一闭环回路。</figcaption>
+      </figure>
+    </div>
+  </section>
+
+  <!-- ====================== 04 数据 ====================== -->
+  <section id="data" class="alt">
+    <div class="container">
+      <div class="section-label">04 — 数据</div>
+      <h2>工业规模的多相机驾驶数据</h2>
+      <div class="prose">
+        <p>
+          我们构建了约 <strong>28 万小时</strong> 的内部驾驶数据集 —— 共 3,400 万个片段（每段最长 30 秒），
+          多视角观测被 token 化为 13.8 T tokens。7 路环视相机（前鱼眼、前长焦、左/右前、左/右后、后）
+          提供 360° 覆盖；视频以 12 Hz 原生存储，训练时降采样到 4 Hz，
+          在运动保真与序列长度之间取得平衡。
+        </p>
+      </div>
+      <figure>
+        <img src="../assets/img/datainfo_final.png" alt="数据集概览" />
+        <figcaption>大规模多相机驾驶数据集概览。</figcaption>
+      </figure>
+      <figure>
+        <img src="../assets/img/data_distribution_behavior.png" alt="场景分布" />
+        <figcaption>
+          训练场景分布。原始细粒度标签被聚合为八大类；颜色按道路类型（城区 / 高速）划分。
+          开放道路保持车道占 21.0%，变道 20.1%，受限车道行驶 16.0%，路口与转弯 13.1%。
+          常规驾驶约占 70%，其余覆盖交互与长尾场景。整体以城区为主（86.8%），高速占 13.2%。
+        </figcaption>
+      </figure>
+    </div>
+  </section>
+
+  <!-- ====================== 05 演示 ====================== -->
+  <section id="demo">
+    <div class="container">
+      <div class="section-label">05 — 演示</div>
+      <h2>闭环回放</h2>
+      <div class="prose">
+        <p>
+          下方每个片段都是一次完整的闭环回放：每步 LDM 输出下一个自车动作与一秒的多视角潜空间 token，
+          视觉渲染器将其解码为 7 路环视画面后，再进入下一步预测。点击下方按钮切换不同示例。
+        </p>
+      </div>
+
+      <div class="demo-picker" role="tablist" aria-label="演示示例">
+        <button type="button" class="active" data-src="../assets/videos/example-1.mp4">示例 1</button>
+        <button type="button" data-src="../assets/videos/example-2.mp4">示例 2</button>
+        <button type="button" data-src="../assets/videos/example-3.mp4">示例 3</button>
+        <button type="button" data-src="../assets/videos/example-4.mp4">示例 4</button>
+        <button type="button" data-src="../assets/videos/example-5.mp4">示例 5</button>
+        <button type="button" data-src="../assets/videos/example-6.mp4">示例 6</button>
+      </div>
+
+      <div class="demo-player">
+        <video id="demo-player" controls preload="metadata" playsinline>
+          <source src="../assets/videos/example-1.mp4#t=0.1" type="video/mp4" />
+          您的浏览器不支持 video 标签。
+        </video>
+      </div>
+      <div class="demo-caption">
+        当前播放：<strong id="demo-label">示例 1</strong>。闭环回放 ——
+        7 路环视相机在 4 Hz 下逐步自回归预测，每帧均由 LDM 预测的相机 token 渲染得到。
+      </div>
+    </div>
+  </section>
+
+  <!-- ====================== 06 结果 ====================== -->
+  <section id="results" class="alt">
+    <div class="container">
+      <div class="section-label">06 — 结果</div>
+      <h2>生产规模对比</h2>
+      <div class="prose">
+        <p>
+          完整 X-Foresight 模型（<em>H</em>=21，启用 CLEF 与 TIS，1024 GPU 训练）与同等规模反应式 VLA 基线对比。
+          碰撞率下降 16%，横向 ADE 改进 6.4%，总体 CCES 在安全与合规维度获得主要收益 ——
+          正是以世界知识为驱动的预见性控制所期望的结果。
+        </p>
+      </div>
+
+      <div class="tablewrap">
+        <table class="results">
+          <thead>
+            <tr>
+              <th rowspan="2">方法</th>
+              <th colspan="2" class="grp">ADE ↓</th>
+              <th colspan="2" class="grp">FDE ↓</th>
+              <th rowspan="2">碰撞 ↓</th>
+              <th rowspan="2">合规 ↓</th>
+              <th rowspan="2">舒适 ↓</th>
+              <th rowspan="2">效率 ↓</th>
+              <th rowspan="2">安全 ↓</th>
+              <th rowspan="2"><strong>总分 ↓</strong></th>
+            </tr>
+            <tr>
+              <th class="grp">横</th><th class="grp">纵</th>
+              <th class="grp">横</th><th class="grp">纵</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr><td>基线 (H=1)</td><td>0.1675</td><td>1.1387</td><td>0.4153</td><td>2.9117</td><td>0.228</td><td>1.5413</td><td>5.1267</td><td>4.1090</td><td>0.6023</td><td>3.8319</td></tr>
+            <tr><td>X-Foresight（本工作）</td><td class="best">0.1567</td><td class="best">1.0982</td><td class="best">0.3789</td><td class="best">2.7924</td><td class="best">0.191</td><td class="best">1.3747</td><td>5.4912</td><td>4.2050</td><td class="best">0.5718</td><td class="best">3.7778</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <figcaption>
+        生产规模对比（1024 GPU）。ADE/FDE 单位为米；碰撞/合规/舒适/效率/安全为失败率百分比。
+        数值越低越好；列内最佳加粗。
+      </figcaption>
+
+      <h3>训练视野 <em>H</em> 的影响</h3>
+      <div class="tablewrap">
+        <table class="results">
+          <thead>
+            <tr>
+              <th rowspan="2">视野</th>
+              <th colspan="2" class="grp">ADE ↓</th>
+              <th colspan="2" class="grp">FDE ↓</th>
+              <th rowspan="2">碰撞 ↓</th>
+              <th rowspan="2">合规 ↓</th>
+              <th rowspan="2">舒适 ↓</th>
+              <th rowspan="2">效率 ↓</th>
+              <th rowspan="2">安全 ↓</th>
+              <th rowspan="2"><strong>总分 ↓</strong></th>
+            </tr>
+            <tr>
+              <th class="grp">横</th><th class="grp">纵</th>
+              <th class="grp">横</th><th class="grp">纵</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr><td>H = 1</td><td>0.1923</td><td>1.2409</td><td>0.4881</td><td>3.1935</td><td>0.263</td><td>1.6000</td><td>5.1475</td><td>4.1085</td><td>0.6903</td><td>4.0000</td></tr>
+            <tr><td>H = 6</td><td>0.1864</td><td>1.2196</td><td>0.4691</td><td>3.1178</td><td>0.262</td><td>1.5613</td><td>5.1132</td><td>4.1175</td><td>0.6690</td><td>3.9405</td></tr>
+            <tr><td>H = 21</td><td class="best">0.1810</td><td class="best">1.2110</td><td class="best">0.4571</td><td class="best">3.0988</td><td class="best">0.245</td><td class="best">1.5090</td><td class="best">5.0337</td><td class="best">4.1060</td><td class="best">0.6505</td><td class="best">3.8627</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <figcaption>所有行使用相同架构、数据、硬件（128 GPU）与训练步数，仅 <em>H</em> 不同。每个指标都随视野单调改进。</figcaption>
+
+      <h3>CL · CLEF · TIS 消融</h3>
+      <div class="tablewrap">
+        <table class="results">
+          <thead>
+            <tr>
+              <th rowspan="2">方法</th>
+              <th colspan="2" class="grp">ADE ↓</th>
+              <th colspan="2" class="grp">FDE ↓</th>
+              <th rowspan="2">碰撞 ↓</th>
+              <th rowspan="2">合规 ↓</th>
+              <th rowspan="2">舒适 ↓</th>
+              <th rowspan="2">效率 ↓</th>
+              <th rowspan="2">安全 ↓</th>
+              <th rowspan="2"><strong>总分 ↓</strong></th>
+            </tr>
+            <tr>
+              <th class="grp">横</th><th class="grp">纵</th>
+              <th class="grp">横</th><th class="grp">纵</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr><td>继续 H=6</td><td>0.1741</td><td>1.1807</td><td>0.4344</td><td>3.0087</td><td>0.270</td><td>1.4833</td><td>5.1160</td><td>4.1795</td><td>0.6430</td><td>3.8697</td></tr>
+            <tr><td>+ H=21, CL</td><td>0.1718</td><td>1.1671</td><td>0.4277</td><td>2.9856</td><td>0.238</td><td>1.4890</td><td>5.1883</td><td>4.1530</td><td>0.6270</td><td>3.8576</td></tr>
+            <tr><td>+ H=21, CLEF</td><td class="best">0.1692</td><td class="best">1.1571</td><td class="best">0.4181</td><td>2.9421</td><td>0.230</td><td>1.4930</td><td>5.1990</td><td class="best">4.1360</td><td>0.6135</td><td>3.8385</td></tr>
+            <tr><td>+ H=21, TIS</td><td>0.1696</td><td>1.1578</td><td>0.4195</td><td class="best">2.9413</td><td class="best">0.216</td><td class="best">1.4760</td><td class="best">5.1523</td><td>4.1455</td><td class="best">0.6082</td><td class="best">3.8134</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <figcaption>
+        所有行均从 H=6 检查点继续训练，128 GPU。<strong>CL</strong>：基础课程学习；
+        <strong>CLEF</strong>：带延展视野的课程学习（步长 1 s → 3 s）；
+        <strong>TIS</strong>：时序重要性采样。TIS 取得最低碰撞率与最低总分。
+      </figcaption>
+
+      <h3>视觉渲染器保真度</h3>
+      <figure>
+        <img src="../assets/img/vision_renderer_plot.jpg" alt="视觉渲染器 6 秒环视回放" />
+        <figcaption>
+          视觉渲染器在 7 路环视相机上的 6 秒回放（依次为左后、左前、前长焦、前鱼眼、后、右前、右后）。
+          前长焦和前鱼眼上的蓝色叠加曲线为 LDM 由动作 token 预测的轨迹 —— 渲染器从未见过这些动作 token。
+          二者在 6 秒全程的紧密贴合，证明相机 token 已经隐式编码了自车轨迹与场景动力学。
+        </figcaption>
+      </figure>
+
+      <div class="tablewrap">
+        <table class="results">
+          <thead>
+            <tr>
+              <th rowspan="2">方法</th>
+              <th colspan="3" class="grp">FID ↓</th>
+              <th colspan="3" class="grp">FVD ↓</th>
+            </tr>
+            <tr>
+              <th class="grp">上界</th><th class="grp">1 s</th><th class="grp">6 s</th>
+              <th class="grp">上界</th><th class="grp">1 s</th><th class="grp">6 s</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr><td>相机潜空间解码器</td><td>31.83</td><td>31.93</td><td>36.73</td><td>558.70</td><td>558.79</td><td>606.60</td></tr>
+            <tr><td>视觉渲染器</td><td class="best">0.47</td><td class="best">1.51</td><td class="best">2.84</td><td class="best">4.39</td><td class="best">11.28</td><td class="best">29.52</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <figcaption>FID 在 7 路相机上以 4 Hz 计算；FVD 按相机分别计算后求平均。"上界" 表示 tokenizer 重建上界。</figcaption>
+
+      <h3>训练吞吐</h3>
+      <div class="tablewrap">
+        <table class="results">
+          <thead><tr><th>注意力实现</th><th>单步耗时（s）↓</th><th>加速比 ↑</th></tr></thead>
+          <tbody>
+            <tr><td>FlashAttention-2</td><td>24.50</td><td>1.00×</td></tr>
+            <tr><td>带本文掩码的块稀疏注意力</td><td class="best">15.40</td><td class="best">1.59×</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <!-- ====================== 07 论文 ====================== -->
+  <section id="paper">
+    <div class="container">
+      <div class="section-label">07 — 技术报告</div>
+      <h2>论文、引用与贡献者</h2>
+      <div class="prose">
+        <p>
+          技术报告已通过 arXiv 与 PDF 发布。如果 X-Foresight 对你的研究有帮助，请引用：
+        </p>
+      </div>
+
+      <pre class="bibtex">@techreport{xforesight2026,
+  title  = {X-Foresight: a Predictive World Model Foreseeing High-Fidelity Multi-view Cameras with Real-Time Action Control},
+  author = {{PWM Team}},
+  year   = {2026},
+  institution = {XPeng Inc.},
+  url    = {https://arxiv.org/abs/XXXX.XXXXX}
+}</pre>
+
+      <h3>贡献者</h3>
+      <dl class="contributors">
+        <dt>顾问</dt>
+        <dd>Yu Zhang, Xianming Liu</dd>
+        <dt>项目负责人</dt>
+        <dd>Zhuangzhuang Ding, Pengkun Zheng</dd>
+        <dt>核心贡献者 <small>（按姓氏字母排序）</small></dt>
+        <dd>Baolu Li, Jingyu Qian, Rui Guo, Yilun Chen</dd>
+        <dt>贡献者</dt>
+        <dd>Hanpeng Liu, Yuan Lin, Junhong Zhou, Ruixin Liu, Willow Yang, Yutong Zheng, Zhenli Zhang</dd>
+        <dt>技术项目经理</dt>
+        <dd>Tenglong (Victor) Gu</dd>
+      </dl>
+
+      <div class="acknowledgments">
+        衷心感谢预测式世界模型团队在整个项目中富有激情的探索、深入的讨论与辛勤的付出。
+        特别感谢我们的顾问 Yu Zhang 与 Xianming Liu，他们在世界模型设计上的洞见对本工作至关重要。
+        我们同时感谢小鹏汽车为本研究提供的平台、工具与支持。
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <img src="../assets/img/logo.png" alt="" />
+  PWM 团队 · 小鹏汽车 · 技术报告 · <span id="footer-year">2026</span>
+</footer>
+
+<script src="../config.js"></script>
+<script src="../assets/js/main.js"></script>
+</body>
+</html>

@@ -1,0 +1,486 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>X-Foresight — Predictive World Model for Multi-view Cameras with Real-Time Action Control</title>
+  <meta name="description" content="X-Foresight: a predictive world model that integrates chunk-wise auto-regressive future prediction into the VLA architecture for safe, world-knowledge-driven autonomous driving." />
+  <meta property="og:title" content="X-Foresight" />
+  <meta property="og:description" content="A predictive world model foreseeing high-fidelity multi-view cameras with real-time action control. PWM Team · XPeng Inc." />
+  <meta property="og:image" content="../assets/img/xforesight_main.png" />
+  <link rel="icon" type="image/png" href="../assets/img/logo.png" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Source+Serif+4:opsz,wght@8..60,400;8..60,500;8..60,600;8..60,700&family=JetBrains+Mono:wght@400;500;600&family=Noto+Sans+SC:wght@400;500;600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="../assets/css/styles.css" />
+</head>
+<body>
+
+<nav class="nav">
+  <a class="brand" href="./">
+    <img src="../assets/img/logo.png" alt="logo" />
+    <span>X-Foresight</span>
+  </a>
+  <ul class="sections">
+    <li><a href="#intro">Intro</a></li>
+    <li><a href="#principle">Principle</a></li>
+    <li><a href="#architecture">Architecture</a></li>
+    <li><a href="#data">Data</a></li>
+    <li><a href="#demo">Demos</a></li>
+    <li><a href="#results">Results</a></li>
+    <li><a href="#paper">Paper</a></li>
+  </ul>
+  <span class="lang">
+    <a href="../en/" class="active">EN</a>
+    <span>·</span>
+    <a href="../zh/">中文</a>
+  </span>
+</nav>
+
+<main>
+
+  <!-- ====================== HERO ====================== -->
+  <header class="hero">
+    <h1>X-Foresight: a Predictive World Model Foreseeing High-Fidelity Multi-view Cameras with Real-Time Action Control</h1>
+    <div class="authors">PWM Team</div>
+    <div class="affil">
+      <img src="../assets/img/logo.png" alt="XPeng" /> XPeng Inc. · Technical Report · 2026
+    </div>
+    <div class="badges">
+      <a class="badge muted" data-cfg="ARXIV_URL" href="#" target="_blank" rel="noopener">arXiv</a>
+      <a class="badge" href="#demo">Demo</a>
+    </div>
+    <div class="hero-fig">
+      <figure>
+        <img src="../assets/img/xforesight_main.png" alt="X-Foresight overview" />
+        <figcaption>
+          <strong>(A)</strong> Inference pipeline of X-Foresight.
+          <strong>(B)</strong> Closed-loop inference visualization (front camera shown).
+          <strong>(C)</strong> Model performance outperforms baseline on multiple benchmarks.
+        </figcaption>
+      </figure>
+    </div>
+  </header>
+
+  <!-- ====================== 01 INTRO / ABSTRACT ====================== -->
+  <section id="intro">
+    <div class="container">
+      <div class="section-label">01 — Introduction</div>
+      <h2>Why predictive world modeling for VLA?</h2>
+      <div class="abstract prose">
+        <p>
+          Physical world knowledge resides mainly in videos. Equipping Vision-Language-Action (VLA)
+          models with such knowledge is fundamental for safe and generalizable planning. Predictive
+          world modeling enables a VLA to internalize physical dynamics and long-term causality of
+          driving by predicting future video from past observations. Yet naive next-frame prediction
+          faces two challenges: <strong>(1)</strong> unlike semantically distinct text tokens, video
+          tokens are inherently low-entropy and redundant, causing prediction to degenerate into
+          trivial extrapolation; <strong>(2)</strong> instantaneous dynamics demand dense
+          short-range frames while long-term causality unfolds over long, variable-size horizons.
+          We introduce <strong>X-Foresight</strong>, a predictive world model integrated directly
+          into the VLA architecture to jointly learn world modeling and real-time action control.
+          Its core is a <em>long-horizon chunk-wise auto-regressive strategy</em>: predicting across
+          semantically distant chunks rather than adjacent frames escapes trivial extrapolation,
+          while preserving dense intra-chunk frames captures instantaneous dynamics. A curriculum
+          schedule progressively extends prediction horizons; <em>temporal importance sampling</em>
+          concentrates supervision on safety-critical chunks; and a diffusion-based multi-view
+          renderer restores photorealistic appearance.
+        </p>
+      </div>
+
+      <div class="kv">
+        <div class="stat"><div class="num">280k h</div><div class="lbl">Driving data</div></div>
+        <div class="stat"><div class="num">34 M</div><div class="lbl">Clips</div></div>
+        <div class="stat"><div class="num">7</div><div class="lbl">Surround cameras</div></div>
+        <div class="stat"><div class="num">13.8 T</div><div class="lbl">Tokens</div></div>
+        <div class="stat"><div class="num">1024</div><div class="lbl">GPUs (prod scale)</div></div>
+      </div>
+
+      <h3>Contributions</h3>
+      <ul class="bullets">
+        <li><strong>Long-horizon chunk-wise auto-regression</strong> escapes trivial frame-to-frame extrapolation while preserving dense intra-chunk dynamics — broader world causality at tractable training cost.</li>
+        <li><strong>Curriculum learning with extended foresight (CLEF)</strong> progressively widens the inter-chunk stride from 1 s to 3 s, stabilizing long-horizon prediction.</li>
+        <li><strong>Temporal importance sampling (TIS)</strong> focuses supervision on safety-critical chunks scored by peak weighted lateral/longitudinal acceleration.</li>
+        <li><strong>Diffusion-based multi-view Vision Renderer</strong> integrated into the AR loop to restore photorealistic surround-view detail.</li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- ====================== 02 PRINCIPLE ====================== -->
+  <section id="principle" class="alt">
+    <div class="container">
+      <div class="section-label">02 — Principle</div>
+      <h2>Chunk-wise foresight, not adjacent-frame guessing</h2>
+      <div class="prose">
+        <p>
+          Frame-wise prediction provides only a weak learning signal — adjacent camera frames
+          differ only marginally over short intervals, and the model collapses into trivial
+          extrapolation. Aggressive temporal downsampling helps the horizon but loses the
+          motion cues needed for trajectory prediction.
+        </p>
+        <p>
+          <strong>Chunk-wise foresight</strong> preserves short-term structure inside each
+          1-second chunk while requiring the model to predict a longer segment of future
+          evolution at every auto-regressive step. Increasing the stride between chunks
+          (<em>longer foresight</em>) extends the prediction horizon at no extra compute,
+          and <em>temporal importance sampling</em> directs the limited budget to
+          safety-critical maneuvers.
+        </p>
+      </div>
+      <figure>
+        <img src="../assets/img/predicted_future_frames.png" alt="Prompt formulations for future frame prediction" />
+        <figcaption>
+          Prompt formulations for future frame prediction. <strong>(a)</strong> Frame-wise foresight
+          predicts one frame per step. <strong>(b)</strong> Frame-wise longer foresight increases
+          temporal stride <em>s</em>. <strong>(c)</strong> Chunk-wise foresight predicts <em>K</em>
+          consecutive frames in parallel. <strong>(d)</strong> Chunk-wise longer foresight combines
+          chunk length <em>K</em> with stride <em>s</em>. <strong>(e)</strong> Chunk-wise temporal
+          importance sampling concentrates on safety-critical chunks.
+        </figcaption>
+      </figure>
+    </div>
+  </section>
+
+  <!-- ====================== 03 ARCHITECTURE ====================== -->
+  <section id="architecture">
+    <div class="container">
+      <div class="section-label">03 — Architecture</div>
+      <h2>Large Drive Model + Vision Renderer</h2>
+      <div class="prose">
+        <p>
+          X-Foresight consists of two modules. The <strong>Large Drive Model (LDM)</strong> is an
+          auto-regressive transformer that consumes multi-view observations, language, and
+          ego-state, and predicts three targets at every step: ego actions for real-time control,
+          a bird's-eye-view scene plot, and per-camera latent tokens summarizing the future
+          appearance from each viewpoint. The <strong>Vision Renderer</strong> is a diffusion-based
+          decoder whose rendered frames are fed back into the LDM as fresh observations, closing
+          the auto-regressive loop.
+        </p>
+      </div>
+
+      <figure>
+        <img src="../assets/img/train_pipeline.png" alt="Three-stage training pipeline" />
+        <figcaption>
+          Three-stage training pipeline. Stage I & II train the LDM and Renderer separately,
+          with the Renderer conditioned on ground-truth future trajectories. In stage III the LDM
+          is frozen and the Renderer's conditioning is swapped to the LDM's predicted future
+          camera tokens, aligning the train-time and inference-time distributions.
+        </figcaption>
+      </figure>
+
+      <div class="cols2">
+        <div class="card">
+          <h3>Large Drive Model</h3>
+          <p>
+            Multi-modal prompt: a global system prompt followed by temporal chunks
+            <code>[ l<sub>i</sub>, O<sub>i</sub>, A<sub>i</sub>, Q<sub>i</sub> ]</code> — horizon text,
+            multi-view ViT tokens, ego state, query tokens that trigger future-variable prediction.
+            Trained end-to-end under teacher forcing on action, camera, and BEV losses.
+          </p>
+        </div>
+        <div class="card">
+          <h3>Vision Renderer</h3>
+          <p>
+            A DiT video generator with rectified-flow objective, built atop X-World's
+            view-temporal attention and a 3D causal VAE. The renderer is conditioned <em>only</em>
+            on the LDM's camera tokens (no action shortcut), restoring photorealistic detail while
+            remaining controlled by the LDM's latent imagination.
+          </p>
+        </div>
+      </div>
+
+      <figure>
+        <img src="../assets/img/precise_mask.png" alt="Semi-causal block-sparse attention mask" />
+        <figcaption>
+          <strong>Semi-causal block-sparse attention.</strong> Each pixel is one token block where
+          attention is allowed. The mask preserves bidirectional attention within each chunk,
+          enables access to the global system prompt and earlier prompt tokens, and prohibits
+          attention between query tokens across chunks. Two complementary patterns are assigned
+          to even/odd attention-head groups so block density grows linearly with sequence length.
+        </figcaption>
+      </figure>
+
+      <figure>
+        <img src="../assets/img/xforesight_pipeline.png" alt="Full system architecture" />
+        <figcaption>The complete X-Foresight architecture, joining LDM and Vision Renderer into a single closed-loop rollout.</figcaption>
+      </figure>
+    </div>
+  </section>
+
+  <!-- ====================== 04 DATA ====================== -->
+  <section id="data" class="alt">
+    <div class="container">
+      <div class="section-label">04 — Data</div>
+      <h2>Industry-scale multi-camera driving</h2>
+      <div class="prose">
+        <p>
+          We built an industry-level dataset with approximately <strong>280,000 hours</strong> of
+          in-house driving data — 34 million clips up to 30 s each, tokenized into 13.8 T tokens.
+          A 7-camera surround-view rig (front fisheye, front narrow, left/right front, left/right
+          rear, rear) provides 360° coverage. Streams are stored at 12 Hz and downsampled to 4 Hz
+          for training, balancing motion fidelity against tractable sequence length.
+        </p>
+      </div>
+      <figure>
+        <img src="../assets/img/datainfo_final.png" alt="Dataset overview" />
+        <figcaption>Overview of the large-scale multi-camera driving dataset.</figcaption>
+      </figure>
+      <figure>
+        <img src="../assets/img/data_distribution_behavior.png" alt="Scenario distribution" />
+        <figcaption>
+          Training scenario distribution. Fine-grained auto-tags grouped into eight categories;
+          colors split each category by road class (urban vs highway). Open-road lane keeping
+          accounts for 21.0 %, lane changes 20.1 %, constrained-lane driving 16.0 %, intersections
+          and turns 13.1 %. Routine driving covers ~70 %; the remainder covers interaction and
+          long-tail scenarios. Road split is dominated by urban (86.8 %) with highway at 13.2 %.
+        </figcaption>
+      </figure>
+    </div>
+  </section>
+
+  <!-- ====================== 05 DEMOS ====================== -->
+  <section id="demo">
+    <div class="container">
+      <div class="section-label">05 — Demos</div>
+      <h2>Closed-loop rollouts</h2>
+      <div class="prose">
+        <p>
+          Each clip below is a full closed-loop rollout: at every step the LDM emits the next ego
+          action and one second of multi-view latent tokens, which the Vision Renderer decodes
+          into seven surround-view frames before the next prediction. Select an example to view.
+        </p>
+      </div>
+
+      <div class="demo-picker" role="tablist" aria-label="Demo examples">
+        <button type="button" class="active" data-src="../assets/videos/example-1.mp4">Example 1</button>
+        <button type="button" data-src="../assets/videos/example-2.mp4">Example 2</button>
+        <button type="button" data-src="../assets/videos/example-3.mp4">Example 3</button>
+        <button type="button" data-src="../assets/videos/example-4.mp4">Example 4</button>
+        <button type="button" data-src="../assets/videos/example-5.mp4">Example 5</button>
+        <button type="button" data-src="../assets/videos/example-6.mp4">Example 6</button>
+      </div>
+
+      <div class="demo-player">
+        <video id="demo-player" controls preload="metadata" playsinline>
+          <source src="../assets/videos/example-1.mp4#t=0.1" type="video/mp4" />
+          Your browser does not support the video tag.
+        </video>
+      </div>
+      <div class="demo-caption">
+        Currently viewing: <strong id="demo-label">Example 1</strong>. Closed-loop rollout —
+        seven surround-view cameras predicted auto-regressively at 4 Hz; each frame is rendered
+        from the LDM's predicted camera tokens.
+      </div>
+    </div>
+  </section>
+
+  <!-- ====================== 06 RESULTS ====================== -->
+  <section id="results" class="alt">
+    <div class="container">
+      <div class="section-label">06 — Results</div>
+      <h2>Production-scale headline</h2>
+      <div class="prose">
+        <p>
+          The full X-Foresight model (<em>H</em>=21 with CLEF and TIS, trained on 1024 GPUs) is
+          compared against the reactive VLA baseline trained at the same scale. Collision rate
+          drops 16 %, lateral ADE improves 6.4 %, and the aggregate CCES Total improves with
+          gains concentrated in Safety and Compliance — exactly the predictive-control
+          hypothesis that world-knowledge-driven foresight yields better safety-critical decisions.
+        </p>
+      </div>
+
+      <div class="tablewrap">
+        <table class="results">
+          <thead>
+            <tr>
+              <th rowspan="2">Method</th>
+              <th colspan="2" class="grp">ADE ↓</th>
+              <th colspan="2" class="grp">FDE ↓</th>
+              <th rowspan="2">Coll. ↓</th>
+              <th rowspan="2">Compl. ↓</th>
+              <th rowspan="2">Comfort ↓</th>
+              <th rowspan="2">Eff. ↓</th>
+              <th rowspan="2">Safety ↓</th>
+              <th rowspan="2"><strong>Total ↓</strong></th>
+            </tr>
+            <tr>
+              <th class="grp">Lat.</th><th class="grp">Long.</th>
+              <th class="grp">Lat.</th><th class="grp">Long.</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr><td>Baseline (H=1)</td><td>0.1675</td><td>1.1387</td><td>0.4153</td><td>2.9117</td><td>0.228</td><td>1.5413</td><td>5.1267</td><td>4.1090</td><td>0.6023</td><td>3.8319</td></tr>
+            <tr><td>X-Foresight (ours)</td><td class="best">0.1567</td><td class="best">1.0982</td><td class="best">0.3789</td><td class="best">2.7924</td><td class="best">0.191</td><td class="best">1.3747</td><td>5.4912</td><td>4.2050</td><td class="best">0.5718</td><td class="best">3.7778</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <figcaption>
+        Production-scale comparison (1024 GPUs). ADE/FDE in metres; Coll./Compl./Comfort/Eff./Safety
+        are percentage fail rates. Lower is better. Best in column shown in bold.
+      </figcaption>
+
+      <h3>Effect of training-time horizon <em>H</em></h3>
+      <div class="tablewrap">
+        <table class="results">
+          <thead>
+            <tr>
+              <th rowspan="2">Horizon</th>
+              <th colspan="2" class="grp">ADE ↓</th>
+              <th colspan="2" class="grp">FDE ↓</th>
+              <th rowspan="2">Coll. ↓</th>
+              <th rowspan="2">Compl. ↓</th>
+              <th rowspan="2">Comfort ↓</th>
+              <th rowspan="2">Eff. ↓</th>
+              <th rowspan="2">Safety ↓</th>
+              <th rowspan="2"><strong>Total ↓</strong></th>
+            </tr>
+            <tr>
+              <th class="grp">Lat.</th><th class="grp">Long.</th>
+              <th class="grp">Lat.</th><th class="grp">Long.</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr><td>H = 1</td><td>0.1923</td><td>1.2409</td><td>0.4881</td><td>3.1935</td><td>0.263</td><td>1.6000</td><td>5.1475</td><td>4.1085</td><td>0.6903</td><td>4.0000</td></tr>
+            <tr><td>H = 6</td><td>0.1864</td><td>1.2196</td><td>0.4691</td><td>3.1178</td><td>0.262</td><td>1.5613</td><td>5.1132</td><td>4.1175</td><td>0.6690</td><td>3.9405</td></tr>
+            <tr><td>H = 21</td><td class="best">0.1810</td><td class="best">1.2110</td><td class="best">0.4571</td><td class="best">3.0988</td><td class="best">0.245</td><td class="best">1.5090</td><td class="best">5.0337</td><td class="best">4.1060</td><td class="best">0.6505</td><td class="best">3.8627</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <figcaption>All rows share architecture, data, hardware (128 GPUs), and training steps; only <em>H</em> varies. Each metric improves monotonically with horizon.</figcaption>
+
+      <h3>Ablating CL · CLEF · TIS</h3>
+      <div class="tablewrap">
+        <table class="results">
+          <thead>
+            <tr>
+              <th rowspan="2">Method</th>
+              <th colspan="2" class="grp">ADE ↓</th>
+              <th colspan="2" class="grp">FDE ↓</th>
+              <th rowspan="2">Coll. ↓</th>
+              <th rowspan="2">Compl. ↓</th>
+              <th rowspan="2">Comfort ↓</th>
+              <th rowspan="2">Eff. ↓</th>
+              <th rowspan="2">Safety ↓</th>
+              <th rowspan="2"><strong>Total ↓</strong></th>
+            </tr>
+            <tr>
+              <th class="grp">Lat.</th><th class="grp">Long.</th>
+              <th class="grp">Lat.</th><th class="grp">Long.</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr><td>Cont. H=6</td><td>0.1741</td><td>1.1807</td><td>0.4344</td><td>3.0087</td><td>0.270</td><td>1.4833</td><td>5.1160</td><td>4.1795</td><td>0.6430</td><td>3.8697</td></tr>
+            <tr><td>+ H=21, CL</td><td>0.1718</td><td>1.1671</td><td>0.4277</td><td>2.9856</td><td>0.238</td><td>1.4890</td><td>5.1883</td><td>4.1530</td><td>0.6270</td><td>3.8576</td></tr>
+            <tr><td>+ H=21, CLEF</td><td class="best">0.1692</td><td class="best">1.1571</td><td class="best">0.4181</td><td>2.9421</td><td>0.230</td><td>1.4930</td><td>5.1990</td><td class="best">4.1360</td><td>0.6135</td><td>3.8385</td></tr>
+            <tr><td>+ H=21, TIS</td><td>0.1696</td><td>1.1578</td><td>0.4195</td><td class="best">2.9413</td><td class="best">0.216</td><td class="best">1.4760</td><td class="best">5.1523</td><td>4.1455</td><td class="best">0.6082</td><td class="best">3.8134</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <figcaption>
+        All rows are initialised from the H=6 checkpoint and further trained on 128 GPUs.
+        <strong>CL</strong>: basic curriculum learning. <strong>CLEF</strong>: curriculum learning
+        with extended foresight (stride 1 s → 3 s). <strong>TIS</strong>: temporal importance
+        sampling. TIS achieves the lowest collision rate and Total CCES.
+      </figcaption>
+
+      <h3>Vision Renderer fidelity</h3>
+      <figure>
+        <img src="../assets/img/vision_renderer_plot.jpg" alt="Vision Renderer 6-second rollout across seven cameras" />
+        <figcaption>
+          6-second rollout from the Vision Renderer across all seven surround-view cameras
+          (left rear, left front, front narrow, front fisheye, rear, right front, right rear).
+          The blue overlay on front-narrow and front-fisheye is the trajectory predicted by the
+          LDM from action tokens — which the renderer never sees. Its tight alignment with the
+          synthesized scene confirms that the camera tokens already encode ego trajectory and
+          scene dynamics.
+        </figcaption>
+      </figure>
+
+      <div class="tablewrap">
+        <table class="results">
+          <thead>
+            <tr>
+              <th rowspan="2">Method</th>
+              <th colspan="3" class="grp">FID ↓</th>
+              <th colspan="3" class="grp">FVD ↓</th>
+            </tr>
+            <tr>
+              <th class="grp">UB</th><th class="grp">1 s</th><th class="grp">6 s</th>
+              <th class="grp">UB</th><th class="grp">1 s</th><th class="grp">6 s</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr><td>Camera Latent Decoder</td><td>31.83</td><td>31.93</td><td>36.73</td><td>558.70</td><td>558.79</td><td>606.60</td></tr>
+            <tr><td>Vision Renderer</td><td class="best">0.47</td><td class="best">1.51</td><td class="best">2.84</td><td class="best">4.39</td><td class="best">11.28</td><td class="best">29.52</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <figcaption>FID is computed over all seven cameras at 4 Hz; FVD is averaged across cameras. UB is the tokenizer upper bound.</figcaption>
+
+      <h3>Training throughput</h3>
+      <div class="tablewrap">
+        <table class="results">
+          <thead><tr><th>Attention implementation</th><th>Per-step time (s) ↓</th><th>Speedup ↑</th></tr></thead>
+          <tbody>
+            <tr><td>FlashAttention-2</td><td>24.50</td><td>1.00×</td></tr>
+            <tr><td>Block Sparse Attention w/ our mask</td><td class="best">15.40</td><td class="best">1.59×</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <!-- ====================== 07 PAPER ====================== -->
+  <section id="paper">
+    <div class="container">
+      <div class="section-label">07 — Tech Report</div>
+      <h2>Paper, citation, contributors</h2>
+      <div class="prose">
+        <p>
+          The technical report is available on arXiv and as a PDF. If X-Foresight informs your
+          research, please cite us:
+        </p>
+      </div>
+
+      <pre class="bibtex">@techreport{xforesight2026,
+  title  = {X-Foresight: a Predictive World Model Foreseeing High-Fidelity Multi-view Cameras with Real-Time Action Control},
+  author = {{PWM Team}},
+  year   = {2026},
+  institution = {XPeng Inc.},
+  url    = {https://arxiv.org/abs/XXXX.XXXXX}
+}</pre>
+
+      <h3>Contributors</h3>
+      <dl class="contributors">
+        <dt>Advisors</dt>
+        <dd>Yu Zhang, Xianming Liu</dd>
+        <dt>Project Lead</dt>
+        <dd>Zhuangzhuang Ding, Pengkun Zheng</dd>
+        <dt>Core Contributors <small>(alphabetical)</small></dt>
+        <dd>Baolu Li, Jingyu Qian, Rui Guo, Yilun Chen</dd>
+        <dt>Contributors</dt>
+        <dd>Hanpeng Liu, Yuan Lin, Junhong Zhou, Ruixin Liu, Willow Yang, Yutong Zheng, Zhenli Zhang</dd>
+        <dt>Technical Program Manager</dt>
+        <dd>Tenglong (Victor) Gu</dd>
+      </dl>
+
+      <div class="acknowledgments">
+        We sincerely thank our predictive world model team for their passionate exploration,
+        valuable discussions, and hard work throughout this project. In particular, we are grateful
+        to our advisors, Yu Zhang and Xianming Liu, for their insightful guidance on world model
+        design, which was instrumental to the development of this work. We also thank XPeng for
+        providing the platform, tools, and support that made this work possible.
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <img src="../assets/img/logo.png" alt="" />
+  PWM Team · XPeng Inc. · Technical Report · <span id="footer-year">2026</span>
+</footer>
+
+<script src="../config.js"></script>
+<script src="../assets/js/main.js"></script>
+</body>
+</html>
