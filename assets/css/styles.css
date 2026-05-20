@@ -53,15 +53,13 @@ a:hover { text-decoration: underline; }
   border-bottom: 1px solid var(--rule);
 }
 .nav .brand {
-  font-family: var(--serif);
-  font-weight: 600;
-  font-size: 17px;
-  letter-spacing: 0.01em;
   margin-right: auto;
   color: var(--ink);
-  display: flex; align-items: center; gap: 8px;
+  display: flex; align-items: center; gap: 10px;
 }
-.nav .brand img { height: 18px; width: auto; }
+.nav .brand img { display: block; width: auto; }
+.nav .brand .brand-mark { height: 24px; }
+.nav .brand .brand-name { height: 15px; }
 .nav ul {
   list-style: none;
   display: flex;
@@ -93,7 +91,7 @@ a:hover { text-decoration: underline; }
   .nav { padding: 0 12px; overflow-x: auto; }
   .nav ul { gap: 12px; }
   .nav ul a { font-size: 13px; }
-  .nav .brand span { display: none; }
+  .nav .brand .brand-name { display: none; }
 }
 
 /* ----- Layout shell ------------------------------------------------------ */
@@ -294,15 +292,34 @@ table.results {
   font-size: 14px;
   font-family: var(--serif);
   font-variant-numeric: tabular-nums;
+  table-layout: fixed;
 }
 table.results th, table.results td {
   border-bottom: 1px solid var(--rule);
   padding: 8px 12px;
-  text-align: right;
+  text-align: center;
   white-space: nowrap;
 }
-table.results th { background: var(--bg-alt); font-weight: 600; color: var(--ink); }
-table.results td:first-child, table.results th:first-child { text-align: left; }
+table.results th {
+  background: var(--bg-alt);
+  font-weight: 600;
+  color: var(--ink);
+  text-align: center;
+}
+/* Width and left-alignment for the Method column.
+   The selector deliberately scopes to thead's FIRST row only, so the
+   sub-header row's first <th> (e.g. "1 s", which lives in column 2 due to
+   the Method cell's rowspan above) does not get treated as a column-width
+   anchor and shift the data underneath it. */
+table.results thead > tr:first-child > th:first-child {
+  text-align: left;
+  width: 24%;
+  white-space: normal;
+}
+table.results tbody td:first-child {
+  text-align: left;
+  white-space: normal;
+}
 table.results tbody tr:hover { background: var(--bg-alt); }
 table.results .best { font-weight: 700; color: var(--accent); }
 table.results .grp { color: var(--muted); font-weight: 500; }
