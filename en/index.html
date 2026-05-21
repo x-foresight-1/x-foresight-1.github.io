@@ -155,35 +155,6 @@
         </p>
       </div>
 
-      <h3>Chunk-wise foresight, not adjacent-frame guessing</h3>
-      <div class="prose">
-        <p>
-          Frame-wise prediction provides only a weak learning signal — adjacent camera frames
-          differ only marginally over short intervals, and the model collapses into trivial
-          extrapolation. Aggressive temporal downsampling helps the horizon but loses the
-          motion cues needed for trajectory prediction.
-        </p>
-        <p>
-          <strong>Chunk-wise foresight</strong> preserves short-term structure inside each
-          1-second chunk while requiring the model to predict a longer segment of future
-          evolution at every auto-regressive step. Increasing the stride between chunks
-          (<em>longer foresight</em>) extends the prediction horizon at no extra compute,
-          and <em>temporal importance sampling</em> directs the limited budget to
-          safety-critical maneuvers.
-        </p>
-      </div>
-      <figure>
-        <img src="../assets/img/predicted_future_frames.png" alt="Prompt formulations for future frame prediction" />
-        <figcaption>
-          Prompt formulations for future frame prediction. <strong>(a)</strong> Frame-wise foresight
-          predicts one frame per step. <strong>(b)</strong> Frame-wise longer foresight increases
-          temporal stride <em>s</em>. <strong>(c)</strong> Chunk-wise foresight predicts <em>K</em>
-          consecutive frames in parallel. <strong>(d)</strong> Chunk-wise longer foresight combines
-          chunk length <em>K</em> with stride <em>s</em>. <strong>(e)</strong> Chunk-wise temporal
-          importance sampling concentrates on safety-critical chunks.
-        </figcaption>
-      </figure>
-
       <figure>
         <img src="../assets/img/train_pipeline.png" alt="Three-stage training pipeline" />
         <figcaption>
@@ -214,6 +185,35 @@
           </p>
         </div>
       </div>
+
+      <h3>Chunk-wise foresight, not adjacent-frame guessing</h3>
+      <div class="prose">
+        <p>
+          Frame-wise prediction provides only a weak learning signal — adjacent camera frames
+          differ only marginally over short intervals, and the model collapses into trivial
+          extrapolation. Aggressive temporal downsampling helps the horizon but loses the
+          motion cues needed for trajectory prediction.
+        </p>
+        <p>
+          <strong>Chunk-wise foresight</strong> preserves short-term structure inside each
+          1-second chunk while requiring the model to predict a longer segment of future
+          evolution at every auto-regressive step. Increasing the stride between chunks
+          (<em>longer foresight</em>) extends the prediction horizon at no extra compute,
+          and <em>temporal importance sampling</em> directs the limited budget to
+          safety-critical maneuvers.
+        </p>
+      </div>
+      <figure>
+        <img src="../assets/img/predicted_future_frames.png" alt="Prompt formulations for future frame prediction" />
+        <figcaption>
+          Prompt formulations for future frame prediction. <strong>(a)</strong> Frame-wise foresight
+          predicts one frame per step. <strong>(b)</strong> Frame-wise longer foresight increases
+          temporal stride <em>s</em>. <strong>(c)</strong> Chunk-wise foresight predicts <em>K</em>
+          consecutive frames in parallel. <strong>(d)</strong> Chunk-wise longer foresight combines
+          chunk length <em>K</em> with stride <em>s</em>. <strong>(e)</strong> Chunk-wise temporal
+          importance sampling concentrates on safety-critical chunks.
+        </figcaption>
+      </figure>
 
       <figure>
         <img src="../assets/img/precise_mask.png" alt="Semi-causal block-sparse attention mask" />

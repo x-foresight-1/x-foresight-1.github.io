@@ -142,29 +142,6 @@
         </p>
       </div>
 
-      <h3>分块预见，而非邻帧外推</h3>
-      <div class="prose">
-        <p>
-          逐帧预测在短时间内提供的监督信号过弱 —— 相邻帧差异极小，模型容易塌缩到平凡外推。简单的时间下采样
-          虽能延长预测视野，却会丢失轨迹预测所需的运动线索。
-        </p>
-        <p>
-          <strong>分块预见</strong>在 1 秒的每个块内保留短时结构，又要求模型在每个自回归步预测更长一段未来。
-          扩大块间步长（<em>延展视野</em>）能在不增加计算的前提下延长预测视野；
-          <em>时序重要性采样</em>则把有限的训练预算导向安全关键操作。
-        </p>
-      </div>
-      <figure>
-        <img src="../assets/img/predicted_future_frames.png" alt="未来帧预测的提示词组织方式" />
-        <figcaption>
-          未来帧预测的提示词组织方式。<strong>(a)</strong> 逐帧预见，每步预测一帧。
-          <strong>(b)</strong> 增大步长 <em>s</em> 的逐帧长视野预见。
-          <strong>(c)</strong> 分块预见，并行预测 <em>K</em> 个相邻帧。
-          <strong>(d)</strong> 同时使用块长 <em>K</em> 与步长 <em>s</em> 的分块长视野预见。
-          <strong>(e)</strong> 面向安全关键块的分块时序重要性采样。
-        </figcaption>
-      </figure>
-
       <figure>
         <img src="../assets/img/train_pipeline.png" alt="三阶段训练流程" />
         <figcaption>
@@ -193,6 +170,29 @@
           </p>
         </div>
       </div>
+
+      <h3>分块预见，而非邻帧外推</h3>
+      <div class="prose">
+        <p>
+          逐帧预测在短时间内提供的监督信号过弱 —— 相邻帧差异极小，模型容易塌缩到平凡外推。简单的时间下采样
+          虽能延长预测视野，却会丢失轨迹预测所需的运动线索。
+        </p>
+        <p>
+          <strong>分块预见</strong>在 1 秒的每个块内保留短时结构，又要求模型在每个自回归步预测更长一段未来。
+          扩大块间步长（<em>延展视野</em>）能在不增加计算的前提下延长预测视野；
+          <em>时序重要性采样</em>则把有限的训练预算导向安全关键操作。
+        </p>
+      </div>
+      <figure>
+        <img src="../assets/img/predicted_future_frames.png" alt="未来帧预测的提示词组织方式" />
+        <figcaption>
+          未来帧预测的提示词组织方式。<strong>(a)</strong> 逐帧预见，每步预测一帧。
+          <strong>(b)</strong> 增大步长 <em>s</em> 的逐帧长视野预见。
+          <strong>(c)</strong> 分块预见，并行预测 <em>K</em> 个相邻帧。
+          <strong>(d)</strong> 同时使用块长 <em>K</em> 与步长 <em>s</em> 的分块长视野预见。
+          <strong>(e)</strong> 面向安全关键块的分块时序重要性采样。
+        </figcaption>
+      </figure>
 
       <figure>
         <img src="../assets/img/precise_mask.png" alt="半因果块稀疏注意力掩码" />
