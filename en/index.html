@@ -62,34 +62,24 @@
       <div class="abstract prose">
         <p>
           Physical world knowledge resides mainly in videos. Equipping Vision-Language-Action (VLA)
-          models with such knowledge is fundamental for safe and generalizable planning. To extract
-          this knowledge from video data, predictive world modeling enables VLA to internalize
-          physical dynamics and long-term causality of driving by predicting future video from past
-          observations. However, naive next-frame prediction faces two challenges:
-          <strong>(1)</strong> unlike semantically distinct text tokens, video tokens are inherently
-          low-entropy and redundant, causing prediction to easily degenerate into trivial
-          extrapolation; <strong>(2)</strong> world modeling poses a temporal dilemma: instantaneous
-          dynamics need dense frame prediction, while long-term causality unfolds over long and
-          variable-size horizons that dense prediction cannot efficiently cover.
+          models with that knowledge is fundamental for safe, generalizable planning, and
+          <strong>predictive world modeling</strong> extracts it by forecasting future video from
+          past observations. But naive next-frame prediction faces two challenges: video tokens are
+          inherently low-entropy and redundant, so prediction easily collapses to trivial
+          extrapolation; and instantaneous dynamics demand dense frames while long-term causality
+          unfolds over long, variable horizons that dense prediction cannot efficiently cover.
         </p>
         <p>
-          To learn world knowledge effectively, we introduce <strong>X-Foresight</strong>, a
-          predictive world model integrated directly into the VLA architecture to jointly learn
-          world modeling and real-time action control. At its core lies a
-          <em>long-horizon chunk-wise auto-regressive strategy</em> that addresses both challenges:
-          by predicting across semantically distant chunks rather than adjacent frames, it escapes
-          trivial extrapolation, while preserving dense intra-chunk frames to capture instantaneous
-          dynamics and sparse inter-chunk transitions to capture long-term causality — resolving
-          both the entropy and temporal-dilemma challenges at tractable training cost. A curriculum
-          learning schedule progressively extends prediction horizons to stabilize training. To
-          further capture long-term causality effectively, we present <em>temporal importance
-          sampling</em>, which concentrates supervision on safety-critical chunks identified by
-          ego-motion and behavioral signals. We further delegate photorealistic synthesis to a
-          diffusion-based multi-view renderer, enriching photorealistic details and improving
-          pixel-level appearance. Comprehensive experiments demonstrate that X-Foresight
-          significantly outperforms VLA baselines in planning performance while maintaining strong
-          generative fidelity, establishing a robust paradigm for world-knowledge-driven autonomous
-          systems.
+          <strong>X-Foresight</strong> integrates a predictive world model directly into the VLA
+          architecture, jointly learning world modeling and real-time action control. Its core is a
+          <em>long-horizon chunk-wise auto-regressive strategy</em>: predicting across semantically
+          distant chunks escapes trivial extrapolation, while dense intra-chunk frames capture
+          instantaneous dynamics and sparse inter-chunk transitions capture long-term causality —
+          at tractable training cost. A curriculum schedule progressively extends prediction
+          horizons to stabilize long-horizon training; <em>temporal importance sampling</em>
+          concentrates supervision on safety-critical chunks; and a diffusion-based multi-view
+          renderer restores photorealistic appearance. X-Foresight significantly outperforms VLA
+          baselines in planning while maintaining strong generative fidelity.
         </p>
       </div>
 
