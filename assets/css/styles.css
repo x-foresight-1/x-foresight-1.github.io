@@ -426,10 +426,10 @@ table.results .grp { color: var(--muted); font-weight: 500; }
   table.results {
     font-size: 13px;
     /* Roomier baseline so each column has breathing space when scrolled. */
-    min-width: 860px;
+    min-width: 1080px;
   }
-  /* Keep horizontal padding generous so the ↓ glyph doesn't kiss the next column. */
-  table.results th, table.results td { padding: 8px 14px; }
+  /* Generous horizontal padding so the ↓ glyph has real space before the next column. */
+  table.results th, table.results td { padding: 8px 20px; }
   /* Visible vertical separators between columns — adjacent cells only,
      so the first column doesn't get an extra left border. */
   table.results th + th,
