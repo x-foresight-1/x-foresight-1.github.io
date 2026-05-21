@@ -26,9 +26,8 @@
   <button class="nav-toggle" type="button" aria-label="Menu" aria-expanded="false">☰</button>
   <ul class="sections">
     <li><a href="#intro">Intro</a></li>
-    <li><a href="#principle">Principle</a></li>
-    <li><a href="#architecture">Architecture</a></li>
     <li><a href="#data">Data</a></li>
+    <li><a href="#architecture">Architecture</a></li>
     <li><a href="#demo">Demos</a></li>
     <li><a href="#results">Results</a></li>
     <li><a href="#paper">Paper</a></li>
@@ -108,11 +107,55 @@
     </div>
   </section>
 
-  <!-- ====================== 02 PRINCIPLE ====================== -->
-  <section id="principle" class="alt" data-num="02">
+  <!-- ====================== 02 DATA ====================== -->
+  <section id="data" class="alt" data-num="02">
     <div class="container">
-      <div class="section-label">02 — Principle</div>
-      <h2>Chunk-wise foresight, not adjacent-frame guessing</h2>
+      <div class="section-label">02 — Data</div>
+      <h2>Industry-scale multi-camera driving</h2>
+      <div class="prose">
+        <p>
+          We built an industry-level dataset with approximately <strong>280,000 hours</strong> of
+          in-house driving data — 34 million clips up to 30 s each, tokenized into 13.8 T tokens.
+          A 7-camera surround-view rig (front fisheye, front narrow, left/right front, left/right
+          rear, rear) provides 360° coverage. Streams are stored at 12 Hz and downsampled to 4 Hz
+          for training, balancing motion fidelity against tractable sequence length.
+        </p>
+      </div>
+      <figure>
+        <img src="../assets/img/datainfo_final.png" alt="Dataset overview" />
+        <figcaption>Overview of the large-scale multi-camera driving dataset.</figcaption>
+      </figure>
+      <figure>
+        <img src="../assets/img/data_distribution_behavior.png" alt="Scenario distribution" />
+        <figcaption>
+          Training scenario distribution. Fine-grained auto-tags grouped into eight categories;
+          colors split each category by road class (urban vs highway). Open-road lane keeping
+          accounts for 21.0 %, lane changes 20.1 %, constrained-lane driving 16.0 %, intersections
+          and turns 13.1 %. Routine driving covers ~70 %; the remainder covers interaction and
+          long-tail scenarios. Road split is dominated by urban (86.8 %) with highway at 13.2 %.
+        </figcaption>
+      </figure>
+    </div>
+  </section>
+
+  <!-- ====================== 03 ARCHITECTURE ====================== -->
+  <section id="architecture" data-num="03">
+    <div class="container">
+      <div class="section-label">03 — Architecture</div>
+      <h2>Large Drive Model + Vision Renderer</h2>
+      <div class="prose">
+        <p>
+          X-Foresight consists of two modules. The <strong>Large Drive Model (LDM)</strong> is an
+          auto-regressive transformer that consumes multi-view observations, language, and
+          ego-state, and predicts three targets at every step: ego actions for real-time control,
+          a bird's-eye-view scene plot, and per-camera latent tokens summarizing the future
+          appearance from each viewpoint. The <strong>Vision Renderer</strong> is a diffusion-based
+          decoder whose rendered frames are fed back into the LDM as fresh observations, closing
+          the auto-regressive loop.
+        </p>
+      </div>
+
+      <h3>Chunk-wise foresight, not adjacent-frame guessing</h3>
       <div class="prose">
         <p>
           Frame-wise prediction provides only a weak learning signal — adjacent camera frames
@@ -140,25 +183,6 @@
           importance sampling concentrates on safety-critical chunks.
         </figcaption>
       </figure>
-    </div>
-  </section>
-
-  <!-- ====================== 03 ARCHITECTURE ====================== -->
-  <section id="architecture" data-num="03">
-    <div class="container">
-      <div class="section-label">03 — Architecture</div>
-      <h2>Large Drive Model + Vision Renderer</h2>
-      <div class="prose">
-        <p>
-          X-Foresight consists of two modules. The <strong>Large Drive Model (LDM)</strong> is an
-          auto-regressive transformer that consumes multi-view observations, language, and
-          ego-state, and predicts three targets at every step: ego actions for real-time control,
-          a bird's-eye-view scene plot, and per-camera latent tokens summarizing the future
-          appearance from each viewpoint. The <strong>Vision Renderer</strong> is a diffusion-based
-          decoder whose rendered frames are fed back into the LDM as fresh observations, closing
-          the auto-regressive loop.
-        </p>
-      </div>
 
       <figure>
         <img src="../assets/img/train_pipeline.png" alt="Three-stage training pipeline" />
@@ -201,49 +225,13 @@
           to even/odd attention-head groups so block density grows linearly with sequence length.
         </figcaption>
       </figure>
-
-      <figure>
-        <img src="../assets/img/xforesight_pipeline.png" alt="Full system architecture" />
-        <figcaption>The complete X-Foresight architecture, joining LDM and Vision Renderer into a single closed-loop rollout.</figcaption>
-      </figure>
     </div>
   </section>
 
-  <!-- ====================== 04 DATA ====================== -->
-  <section id="data" class="alt" data-num="04">
+  <!-- ====================== 04 DEMOS ====================== -->
+  <section id="demo" class="alt" data-num="04">
     <div class="container">
-      <div class="section-label">04 — Data</div>
-      <h2>Industry-scale multi-camera driving</h2>
-      <div class="prose">
-        <p>
-          We built an industry-level dataset with approximately <strong>280,000 hours</strong> of
-          in-house driving data — 34 million clips up to 30 s each, tokenized into 13.8 T tokens.
-          A 7-camera surround-view rig (front fisheye, front narrow, left/right front, left/right
-          rear, rear) provides 360° coverage. Streams are stored at 12 Hz and downsampled to 4 Hz
-          for training, balancing motion fidelity against tractable sequence length.
-        </p>
-      </div>
-      <figure>
-        <img src="../assets/img/datainfo_final.png" alt="Dataset overview" />
-        <figcaption>Overview of the large-scale multi-camera driving dataset.</figcaption>
-      </figure>
-      <figure>
-        <img src="../assets/img/data_distribution_behavior.png" alt="Scenario distribution" />
-        <figcaption>
-          Training scenario distribution. Fine-grained auto-tags grouped into eight categories;
-          colors split each category by road class (urban vs highway). Open-road lane keeping
-          accounts for 21.0 %, lane changes 20.1 %, constrained-lane driving 16.0 %, intersections
-          and turns 13.1 %. Routine driving covers ~70 %; the remainder covers interaction and
-          long-tail scenarios. Road split is dominated by urban (86.8 %) with highway at 13.2 %.
-        </figcaption>
-      </figure>
-    </div>
-  </section>
-
-  <!-- ====================== 05 DEMOS ====================== -->
-  <section id="demo" data-num="05">
-    <div class="container">
-      <div class="section-label">05 — Demos</div>
+      <div class="section-label">04 — Demos</div>
       <h2>Closed-loop rollouts</h2>
       <div class="prose">
         <p>
@@ -276,10 +264,10 @@
     </div>
   </section>
 
-  <!-- ====================== 06 RESULTS ====================== -->
-  <section id="results" class="alt" data-num="06">
+  <!-- ====================== 05 RESULTS ====================== -->
+  <section id="results" data-num="05">
     <div class="container">
-      <div class="section-label">06 — Results</div>
+      <div class="section-label">05 — Results</div>
       <h2>Production-scale headline</h2>
       <div class="prose">
         <p>
@@ -464,10 +452,10 @@
     </div>
   </section>
 
-  <!-- ====================== 07 PAPER ====================== -->
-  <section id="paper" data-num="07">
+  <!-- ====================== 06 PAPER ====================== -->
+  <section id="paper" class="alt" data-num="06">
     <div class="container">
-      <div class="section-label">07 — Tech Report</div>
+      <div class="section-label">06 — Tech Report</div>
       <h2>Paper, citation, contributors</h2>
       <div class="prose">
         <p>

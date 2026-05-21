@@ -26,9 +26,8 @@
   <button class="nav-toggle" type="button" aria-label="菜单" aria-expanded="false">☰</button>
   <ul class="sections">
     <li><a href="#intro">简介</a></li>
-    <li><a href="#principle">核心思想</a></li>
-    <li><a href="#architecture">架构</a></li>
     <li><a href="#data">数据</a></li>
+    <li><a href="#architecture">架构</a></li>
     <li><a href="#demo">演示</a></li>
     <li><a href="#results">结果</a></li>
     <li><a href="#paper">论文</a></li>
@@ -100,11 +99,50 @@
     </div>
   </section>
 
-  <!-- ====================== 02 核心思想 ====================== -->
-  <section id="principle" class="alt" data-num="02">
+  <!-- ====================== 02 数据 ====================== -->
+  <section id="data" class="alt" data-num="02">
     <div class="container">
-      <div class="section-label">02 — 核心思想</div>
-      <h2>分块预见，而非邻帧外推</h2>
+      <div class="section-label">02 — 数据</div>
+      <h2>工业规模的多相机驾驶数据</h2>
+      <div class="prose">
+        <p>
+          我们构建了约 <strong>28 万小时</strong> 的内部驾驶数据集 —— 共 3,400 万个片段（每段最长 30 秒），
+          多视角观测被 token 化为 13.8 T tokens。7 路环视相机（前鱼眼、前长焦、左/右前、左/右后、后）
+          提供 360° 覆盖；视频以 12 Hz 原生存储，训练时降采样到 4 Hz，
+          在运动保真与序列长度之间取得平衡。
+        </p>
+      </div>
+      <figure>
+        <img src="../assets/img/datainfo_final.png" alt="数据集概览" />
+        <figcaption>大规模多相机驾驶数据集概览。</figcaption>
+      </figure>
+      <figure>
+        <img src="../assets/img/data_distribution_behavior.png" alt="场景分布" />
+        <figcaption>
+          训练场景分布。原始细粒度标签被聚合为八大类；颜色按道路类型（城区 / 高速）划分。
+          开放道路保持车道占 21.0%，变道 20.1%，受限车道行驶 16.0%，路口与转弯 13.1%。
+          常规驾驶约占 70%，其余覆盖交互与长尾场景。整体以城区为主（86.8%），高速占 13.2%。
+        </figcaption>
+      </figure>
+    </div>
+  </section>
+
+  <!-- ====================== 03 架构 ====================== -->
+  <section id="architecture" data-num="03">
+    <div class="container">
+      <div class="section-label">03 — 架构</div>
+      <h2>大型驾驶模型 + 视觉渲染器</h2>
+      <div class="prose">
+        <p>
+          X-Foresight 包含两个模块。<strong>大型驾驶模型（LDM）</strong>是一个自回归 Transformer，
+          以多视角观测、语言、自车状态为输入，每步预测三类目标：用于实时控制的自车动作、
+          表征周围空间结构的鸟瞰图（BEV），以及概括各视角未来外观的逐相机潜空间 token。
+          <strong>视觉渲染器</strong>是一个基于扩散模型的解码器，将渲染出的画面回灌给 LDM 作为新的观测，
+          形成闭环自回归。
+        </p>
+      </div>
+
+      <h3>分块预见，而非邻帧外推</h3>
       <div class="prose">
         <p>
           逐帧预测在短时间内提供的监督信号过弱 —— 相邻帧差异极小，模型容易塌缩到平凡外推。简单的时间下采样
@@ -126,23 +164,6 @@
           <strong>(e)</strong> 面向安全关键块的分块时序重要性采样。
         </figcaption>
       </figure>
-    </div>
-  </section>
-
-  <!-- ====================== 03 架构 ====================== -->
-  <section id="architecture" data-num="03">
-    <div class="container">
-      <div class="section-label">03 — 架构</div>
-      <h2>大型驾驶模型 + 视觉渲染器</h2>
-      <div class="prose">
-        <p>
-          X-Foresight 包含两个模块。<strong>大型驾驶模型（LDM）</strong>是一个自回归 Transformer，
-          以多视角观测、语言、自车状态为输入，每步预测三类目标：用于实时控制的自车动作、
-          表征周围空间结构的鸟瞰图（BEV），以及概括各视角未来外观的逐相机潜空间 token。
-          <strong>视觉渲染器</strong>是一个基于扩散模型的解码器，将渲染出的画面回灌给 LDM 作为新的观测，
-          形成闭环自回归。
-        </p>
-      </div>
 
       <figure>
         <img src="../assets/img/train_pipeline.png" alt="三阶段训练流程" />
@@ -182,46 +203,13 @@
           使块密度随序列长度线性增长。
         </figcaption>
       </figure>
-
-      <figure>
-        <img src="../assets/img/xforesight_pipeline.png" alt="完整系统架构" />
-        <figcaption>X-Foresight 完整架构，将 LDM 与视觉渲染器拼接为单一闭环回路。</figcaption>
-      </figure>
     </div>
   </section>
 
-  <!-- ====================== 04 数据 ====================== -->
-  <section id="data" class="alt" data-num="04">
+  <!-- ====================== 04 演示 ====================== -->
+  <section id="demo" class="alt" data-num="04">
     <div class="container">
-      <div class="section-label">04 — 数据</div>
-      <h2>工业规模的多相机驾驶数据</h2>
-      <div class="prose">
-        <p>
-          我们构建了约 <strong>28 万小时</strong> 的内部驾驶数据集 —— 共 3,400 万个片段（每段最长 30 秒），
-          多视角观测被 token 化为 13.8 T tokens。7 路环视相机（前鱼眼、前长焦、左/右前、左/右后、后）
-          提供 360° 覆盖；视频以 12 Hz 原生存储，训练时降采样到 4 Hz，
-          在运动保真与序列长度之间取得平衡。
-        </p>
-      </div>
-      <figure>
-        <img src="../assets/img/datainfo_final.png" alt="数据集概览" />
-        <figcaption>大规模多相机驾驶数据集概览。</figcaption>
-      </figure>
-      <figure>
-        <img src="../assets/img/data_distribution_behavior.png" alt="场景分布" />
-        <figcaption>
-          训练场景分布。原始细粒度标签被聚合为八大类；颜色按道路类型（城区 / 高速）划分。
-          开放道路保持车道占 21.0%，变道 20.1%，受限车道行驶 16.0%，路口与转弯 13.1%。
-          常规驾驶约占 70%，其余覆盖交互与长尾场景。整体以城区为主（86.8%），高速占 13.2%。
-        </figcaption>
-      </figure>
-    </div>
-  </section>
-
-  <!-- ====================== 05 演示 ====================== -->
-  <section id="demo" data-num="05">
-    <div class="container">
-      <div class="section-label">05 — 演示</div>
+      <div class="section-label">04 — 演示</div>
       <h2>闭环回放</h2>
       <div class="prose">
         <p>
@@ -252,10 +240,10 @@
     </div>
   </section>
 
-  <!-- ====================== 06 结果 ====================== -->
-  <section id="results" class="alt" data-num="06">
+  <!-- ====================== 05 结果 ====================== -->
+  <section id="results" data-num="05">
     <div class="container">
-      <div class="section-label">06 — 结果</div>
+      <div class="section-label">05 — 结果</div>
       <h2>生产规模对比</h2>
       <div class="prose">
         <p>
@@ -432,10 +420,10 @@
     </div>
   </section>
 
-  <!-- ====================== 07 论文 ====================== -->
-  <section id="paper" data-num="07">
+  <!-- ====================== 06 论文 ====================== -->
+  <section id="paper" class="alt" data-num="06">
     <div class="container">
-      <div class="section-label">07 — 技术报告</div>
+      <div class="section-label">06 — 技术报告</div>
       <h2>论文、引用与贡献者</h2>
       <div class="prose">
         <p>
