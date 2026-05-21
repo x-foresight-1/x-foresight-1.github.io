@@ -60,6 +60,26 @@
     });
   });
 
+  // Qualitative figure picker: swaps an <img> src and a caption.
+  document.querySelectorAll('.qual-picker').forEach(function (picker) {
+    var imgId = picker.getAttribute('data-target');
+    var capId = picker.getAttribute('data-caption');
+    var img = imgId ? document.getElementById(imgId) : null;
+    var cap = capId ? document.getElementById(capId) : null;
+    var btns = Array.prototype.slice.call(picker.querySelectorAll('button'));
+    btns.forEach(function (btn) {
+      btn.addEventListener('click', function () {
+        var src = btn.getAttribute('data-src');
+        if (!src || !img) return;
+        btns.forEach(function (b) { b.classList.remove('active'); });
+        btn.classList.add('active');
+        img.setAttribute('src', src);
+        img.setAttribute('alt', 'Qualitative comparison — ' + btn.textContent.trim());
+        if (cap) cap.textContent = btn.getAttribute('data-caption') || '';
+      });
+    });
+  });
+
   // Remember the user's language choice so the toggle is sticky on reload.
   try {
     var page = document.documentElement.getAttribute('lang') || '';

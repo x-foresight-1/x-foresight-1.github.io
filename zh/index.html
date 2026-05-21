@@ -293,6 +293,36 @@
         数值越低越好；列内最佳加粗。
       </figcaption>
 
+      <h3>定性对比</h3>
+      <div class="prose">
+        <p>
+          下面两个场景定性展示了上述聚合收益的来源 —— X-Foresight 都对<em>空间</em>或<em>时间</em>上
+          位于前方的事件做出了正确的动作决策，这恰是反应式基线在原理上所欠缺的能力。
+        </p>
+      </div>
+
+      <div class="qual-picker" data-target="qual-image" data-caption="qual-label" role="tablist" aria-label="定性场景">
+        <button type="button" class="active"
+                data-src="../assets/img/qualitative_navigation.png"
+                data-caption="多出口环岛。导航指示自车选择较远的出口。反应式基线锁定最近可见的出口并偏离车道；X-Foresight 始终保持环岛内车道，沿真值轨迹驶向目标出口 —— 将动作锚定在长时导航目标上，而非最显著的近端线索。">
+          导航
+        </button>
+        <button type="button"
+                data-src="../assets/img/qualitative_signal.png"
+                data-caption="夜间交叉路口。当前帧信号灯仍为红色，但日志显示在自车抵达停止线前会转绿，真值轨迹无须制动而直接通过。反应式基线将当前红灯视为立即停车，预测在 ~15 m 处截断；X-Foresight 通过预测式推演预见到信号灯切换，给出了与真值一致的连续轨迹。">
+          信号灯
+        </button>
+      </div>
+
+      <figure>
+        <img id="qual-image" src="../assets/img/qualitative_navigation.png" alt="定性对比 — 多出口环岛" />
+        <figcaption id="qual-label">
+          多出口环岛。导航指示自车选择较远的出口。反应式基线锁定最近可见的出口并偏离车道；
+          X-Foresight 始终保持环岛内车道，沿真值轨迹驶向目标出口 —— 将动作锚定在长时导航目标上，
+          而非最显著的近端线索。
+        </figcaption>
+      </figure>
+
       <h3>训练视野 <em>H</em> 的影响</h3>
       <div class="tablewrap">
         <table class="results">

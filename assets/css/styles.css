@@ -351,14 +351,15 @@ table.results .grp { color: var(--muted); font-weight: 500; }
   width: 100%; height: auto; border-radius: 4px; background: #000;
 }
 
-/* Single-player demo gallery with a button-row selector */
-.demo-picker {
+/* Single-player demo gallery with a button-row selector.
+   .qual-picker shares the same look — used for the qualitative figure switcher. */
+.demo-picker, .qual-picker {
   display: flex;
   flex-wrap: wrap;
   gap: 8px;
   margin-bottom: 16px;
 }
-.demo-picker button {
+.demo-picker button, .qual-picker button {
   font: inherit;
   font-size: 13px;
   font-weight: 500;
@@ -370,8 +371,8 @@ table.results .grp { color: var(--muted); font-weight: 500; }
   cursor: pointer;
   transition: background .12s, color .12s, border-color .12s;
 }
-.demo-picker button:hover { border-color: var(--accent); color: var(--accent); }
-.demo-picker button.active {
+.demo-picker button:hover, .qual-picker button:hover { border-color: var(--accent); color: var(--accent); }
+.demo-picker button.active, .qual-picker button.active {
   background: var(--accent);
   border-color: var(--accent);
   color: #fff;

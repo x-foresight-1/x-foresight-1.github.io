@@ -319,6 +319,38 @@
         are percentage fail rates. Lower is better. Best in column shown in bold.
       </figcaption>
 
+      <h3>Qualitative comparisons</h3>
+      <div class="prose">
+        <p>
+          Two scenarios illustrate how the aggregate gain manifests qualitatively — both turning on
+          correct action toward events that lie ahead <em>in space</em> or <em>in time</em>, the
+          central capability the reactive baseline lacks by construction.
+        </p>
+      </div>
+
+      <div class="qual-picker" data-target="qual-image" data-caption="qual-label" role="tablist" aria-label="Qualitative scenarios">
+        <button type="button" class="active"
+                data-src="../assets/img/qualitative_navigation.png"
+                data-caption="Multi-exit roundabout. The ego is instructed to take a later exit. The reactive baseline commits to the closest visible exit and veers off the lane. X-Foresight holds the roundabout lane and tracks the ground truth to the intended exit — anchoring its action on the long-horizon navigation target rather than the most salient local cue.">
+          Navigation
+        </button>
+        <button type="button"
+                data-src="../assets/img/qualitative_signal.png"
+                data-caption="Nighttime intersection. The light is red at the current frame, but the log confirms it turns green before the ego reaches the stop line, so the ground truth continues through without braking. The baseline treats the present red as an immediate stop and truncates at ~15 m. X-Foresight anticipates the signal transition through its predictive rollout and matches the ground truth.">
+          Signal
+        </button>
+      </div>
+
+      <figure>
+        <img id="qual-image" src="../assets/img/qualitative_navigation.png" alt="Qualitative comparison — multi-exit roundabout" />
+        <figcaption id="qual-label">
+          Multi-exit roundabout. The ego is instructed to take a later exit. The reactive baseline
+          commits to the closest visible exit and veers off the lane. X-Foresight holds the roundabout
+          lane and tracks the ground truth to the intended exit — anchoring its action on the
+          long-horizon navigation target rather than the most salient local cue.
+        </figcaption>
+      </figure>
+
       <h3>Effect of training-time horizon <em>H</em></h3>
       <div class="tablewrap">
         <table class="results">
