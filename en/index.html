@@ -86,9 +86,11 @@
       <figure>
         <img src="../assets/img/xforesight_main.png" alt="X-Foresight overview" />
         <figcaption>
-          <strong>(A)</strong> Inference pipeline of X-Foresight.
-          <strong>(B)</strong> Closed-loop inference visualization (front camera shown).
-          <strong>(C)</strong> Model performance outperforms baseline on multiple benchmarks.
+          <strong>(A)</strong> Inference pipeline of X-Foresight. The main contributions reside in
+          the Large Drive Model (LDM) and the Vision Renderer.
+          <strong>(B)</strong> Closed-loop inference visualization of predicted future frames at
+          t=2 s, t=4 s, and t=6 s; only the front camera is shown.
+          <strong>(C)</strong> X-Foresight outperforms the baselines across multiple benchmarks.
         </figcaption>
       </figure>
 
@@ -102,10 +104,29 @@
 
       <h3>Contributions</h3>
       <ul class="bullets">
-        <li><strong>Long-horizon chunk-wise auto-regression</strong> escapes trivial frame-to-frame extrapolation while preserving dense intra-chunk dynamics — broader world causality at tractable training cost.</li>
-        <li><strong>Curriculum learning with extended foresight (CLEF)</strong> progressively widens the inter-chunk stride from 1 s to 3 s, stabilizing long-horizon prediction.</li>
-        <li><strong>Temporal importance sampling (TIS)</strong> focuses supervision on safety-critical chunks scored by peak weighted lateral/longitudinal acceleration.</li>
-        <li><strong>Diffusion-based multi-view Vision Renderer</strong> integrated into the AR loop to restore photorealistic surround-view detail.</li>
+        <li>
+          We introduce a <strong>long-horizon chunk-wise auto-regressive strategy</strong> that
+          leverages extended future horizons for world modeling. This design both mitigates the
+          collapse of world-knowledge learning under naive next-frame prediction and resolves the
+          temporal dilemma: dense intra-chunk frames allow the model to capture instantaneous
+          dynamics, while long-horizon chunk-level prediction promotes the learning of broader
+          world causality.
+        </li>
+        <li>
+          To improve long-horizon forecasting stability and enhance policy robustness, we exploit a
+          <strong>curriculum-based learning strategy</strong>, starting with short-horizon prediction
+          across chunks and gradually extending to longer strides.
+        </li>
+        <li>
+          We adopt <strong>temporal importance sampling</strong>, a hybrid sampling mechanism that
+          accounts for uneven contributions of future frames to world-knowledge learning, combining
+          random selection with importance-weighted focus on critical temporal transitions.
+        </li>
+        <li>
+          The proposed method can acquire high-fidelity multi-view future images. Integration of a
+          <strong>diffusion-based renderer</strong> into the auto-regressive pipeline is developed
+          to reconstruct photorealistic surround-view details.
+        </li>
       </ul>
     </div>
   </section>
@@ -276,9 +297,11 @@
         <p>
           The full X-Foresight model (<em>H</em>=21 with CLEF and TIS, trained on 1024 GPUs) is
           compared against the reactive VLA baseline trained at the same scale. Collision rate
-          drops 16 %, lateral ADE improves 6.4 %, and the aggregate CCES Total improves with
-          gains concentrated in Safety and Compliance — exactly the predictive-control
-          hypothesis that world-knowledge-driven foresight yields better safety-critical decisions.
+          drops 16.2 %, lateral ADE improves 6.4 %, and all four CCES categories improve —
+          Safety by 9.1 %, Compliance by 8.2 %, Comfort by 1.0 %, and Efficiency by 0.4 % —
+          driving the aggregate Total from 3.8296 to 3.6535 (4.6 % relative). Gains concentrate
+          in Safety and Compliance, consistent with the central claim that long-horizon
+          world-causality supervision improves safety-critical decision quality.
         </p>
       </div>
 
@@ -302,14 +325,16 @@
             </tr>
           </thead>
           <tbody>
-            <tr><td>Baseline (H=1)</td><td>0.1675</td><td>1.1387</td><td>0.4153</td><td>2.9117</td><td>0.228</td><td>1.5413</td><td>5.1267</td><td>4.1090</td><td>0.6023</td><td>3.8319</td></tr>
-            <tr><td>X-Foresight (ours)</td><td class="best">0.1567</td><td class="best">1.0982</td><td class="best">0.3789</td><td class="best">2.7924</td><td class="best">0.191</td><td class="best">1.3747</td><td>5.4912</td><td>4.2050</td><td class="best">0.5718</td><td class="best">3.7778</td></tr>
+            <tr><td>Baseline (H=1)</td><td>0.1675</td><td>1.1387</td><td>0.4153</td><td>2.9117</td><td>0.228</td><td>0.9483</td><td>0.9505</td><td>0.9867</td><td>0.9441</td><td>3.8296</td></tr>
+            <tr><td>X-Foresight (ours)</td><td class="best">0.1567</td><td class="best">1.0982</td><td class="best">0.3789</td><td class="best">2.7924</td><td class="best">0.191</td><td class="best">0.8708</td><td class="best">0.9413</td><td class="best">0.9831</td><td class="best">0.8583</td><td class="best">3.6535</td></tr>
           </tbody>
         </table>
       </div>
       <figcaption>
-        Production-scale comparison (1024 GPUs). ADE/FDE in metres; Coll./Compl./Comfort/Eff./Safety
-        are percentage fail rates. Lower is better. Best in column shown in bold.
+        Production-scale comparison (1024 GPUs). ADE/FDE in metres; Coll. is the percentage
+        collision fail rate; Compl./Comfort/Eff./Safety are unitless ratios — each is the
+        unweighted mean of its per-metric fail-rate ratios to the H=1 reference, so Total = 4
+        at H=1 by construction. Lower is better; best in column shown in bold.
       </figcaption>
 
       <h3>Qualitative comparisons</h3>
@@ -365,13 +390,19 @@
             </tr>
           </thead>
           <tbody>
-            <tr><td>H = 1</td><td>0.1923</td><td>1.2409</td><td>0.4881</td><td>3.1935</td><td>0.263</td><td>1.6000</td><td>5.1475</td><td>4.1085</td><td>0.6903</td><td>4.0000</td></tr>
-            <tr><td>H = 6</td><td>0.1864</td><td>1.2196</td><td>0.4691</td><td>3.1178</td><td>0.262</td><td>1.5613</td><td>5.1132</td><td>4.1175</td><td>0.6690</td><td>3.9405</td></tr>
-            <tr><td>H = 21</td><td class="best">0.1810</td><td class="best">1.2110</td><td class="best">0.4571</td><td class="best">3.0988</td><td class="best">0.245</td><td class="best">1.5090</td><td class="best">5.0337</td><td class="best">4.1060</td><td class="best">0.6505</td><td class="best">3.8627</td></tr>
+            <tr><td>H = 1</td><td>0.1923</td><td>1.2409</td><td>0.4881</td><td>3.1935</td><td>0.263</td><td>1.0000</td><td>1.0000</td><td>1.0000</td><td>1.0000</td><td>4.0000</td></tr>
+            <tr><td>H = 6</td><td>0.1864</td><td>1.2196</td><td>0.4691</td><td>3.1178</td><td>0.262</td><td>0.9756</td><td class="best">0.9880</td><td class="best">0.9833</td><td>0.9927</td><td class="best">3.9396</td></tr>
+            <tr><td>H = 21</td><td class="best">0.1810</td><td class="best">1.2110</td><td class="best">0.4571</td><td class="best">3.0988</td><td class="best">0.245</td><td class="best">0.9533</td><td>1.0416</td><td>1.0094</td><td class="best">0.9481</td><td>3.9524</td></tr>
           </tbody>
         </table>
       </div>
-      <figcaption>All rows share architecture, data, hardware (128 GPUs), and training steps; only <em>H</em> varies. Each metric improves monotonically with horizon.</figcaption>
+      <figcaption>
+        All rows share architecture, data, hardware (128 GPUs), and training steps; only <em>H</em>
+        varies. Compl./Comfort/Eff./Safety are unitless ratios to the H=1 reference; Total sums the
+        four. ADE, FDE, Coll., Compl., and Safety improve monotonically with horizon; Comfort and
+        Eff. regress slightly at H=21, partially offsetting gains in the summed Total — exactly the
+        optimization difficulty that motivates the CLEF and TIS refinements below.
+      </figcaption>
 
       <h3>Ablating CL · CLEF · TIS</h3>
       <div class="tablewrap">
@@ -394,10 +425,10 @@
             </tr>
           </thead>
           <tbody>
-            <tr><td>Cont. H=6</td><td>0.1741</td><td>1.1807</td><td>0.4344</td><td>3.0087</td><td>0.270</td><td>1.4833</td><td>5.1160</td><td>4.1795</td><td>0.6430</td><td>3.8697</td></tr>
-            <tr><td>+ H=21, CL</td><td>0.1718</td><td>1.1671</td><td>0.4277</td><td>2.9856</td><td>0.238</td><td>1.4890</td><td>5.1883</td><td>4.1530</td><td>0.6270</td><td>3.8576</td></tr>
-            <tr><td>+ H=21, CLEF</td><td class="best">0.1692</td><td class="best">1.1571</td><td class="best">0.4181</td><td>2.9421</td><td>0.230</td><td>1.4930</td><td>5.1990</td><td class="best">4.1360</td><td>0.6135</td><td>3.8385</td></tr>
-            <tr><td>+ H=21, TIS</td><td>0.1696</td><td>1.1578</td><td>0.4195</td><td class="best">2.9413</td><td class="best">0.216</td><td class="best">1.4760</td><td class="best">5.1523</td><td>4.1455</td><td class="best">0.6082</td><td class="best">3.8134</td></tr>
+            <tr><td>Cont. H=6</td><td>0.1741</td><td>1.1807</td><td>0.4344</td><td>3.0087</td><td>0.270</td><td>0.9302</td><td>1.0515</td><td>0.9980</td><td>0.9726</td><td>3.9523</td></tr>
+            <tr><td>+ H=21, CL</td><td>0.1718</td><td>1.1671</td><td>0.4277</td><td>2.9856</td><td>0.238</td><td>0.9326</td><td>1.0106</td><td>1.0003</td><td>0.9310</td><td>3.8745</td></tr>
+            <tr><td>+ H=21, CLEF</td><td class="best">0.1692</td><td class="best">1.1571</td><td class="best">0.4181</td><td>2.9421</td><td>0.230</td><td>0.9320</td><td>1.0076</td><td class="best">0.9951</td><td>0.9387</td><td>3.8734</td></tr>
+            <tr><td>+ H=21, TIS</td><td>0.1696</td><td>1.1578</td><td>0.4195</td><td class="best">2.9413</td><td class="best">0.216</td><td class="best">0.9187</td><td class="best">1.0043</td><td>0.9953</td><td class="best">0.9264</td><td class="best">3.8447</td></tr>
           </tbody>
         </table>
       </div>

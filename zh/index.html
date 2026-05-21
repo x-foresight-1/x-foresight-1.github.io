@@ -82,9 +82,9 @@
       <figure>
         <img src="../assets/img/xforesight_main.png" alt="X-Foresight 总览" />
         <figcaption>
-          <strong>(A)</strong> X-Foresight 推理流程。
-          <strong>(B)</strong> 闭环推理可视化（仅显示前置相机）。
-          <strong>(C)</strong> 模型在多个基准上超越基线。
+          <strong>(A)</strong> X-Foresight 推理流程。主要贡献集中在大型驾驶模型（LDM）与视觉渲染器两部分。
+          <strong>(B)</strong> 闭环推理可视化：在 t=2 s、t=4 s、t=6 s 处的未来预测帧，仅显示前置相机。
+          <strong>(C)</strong> X-Foresight 在多个基准上超越基线。
         </figcaption>
       </figure>
 
@@ -98,10 +98,23 @@
 
       <h3>主要贡献</h3>
       <ul class="bullets">
-        <li><strong>长时分块自回归策略</strong>：摆脱逐帧外推的平凡性，同时保留块内密集动力学 —— 以可控代价获得更广阔的世界因果。</li>
-        <li><strong>带延展视野的课程学习（CLEF）</strong>：将块间步长从 1 秒逐步扩展到 3 秒，稳定长时预测。</li>
-        <li><strong>时序重要性采样（TIS）</strong>：以加权纵/横向加速度峰值识别并集中监督到安全关键块。</li>
-        <li><strong>基于扩散模型的多视角渲染器</strong>：嵌入自回归回路，恢复环视相机的真实质感。</li>
+        <li>
+          我们提出<strong>长时分块自回归策略</strong>，利用更长的未来时段进行世界建模。
+          这一设计既缓解了朴素逐帧预测下世界知识学习的崩溃问题，又同时化解了时序两难：
+          块内密集帧使模型能够捕捉瞬时动力学，块级长时预测则促进对更广阔世界因果的学习。
+        </li>
+        <li>
+          为提升长时预测的稳定性与策略鲁棒性，我们采用<strong>课程式学习策略</strong>：
+          先从短时段的跨块预测起步，再逐步扩展到更长的块间步长。
+        </li>
+        <li>
+          我们采用<strong>时序重要性采样</strong>——一种混合采样机制：针对未来帧对世界知识学习贡献不均衡这一特性，
+          将随机采样与对关键时序过渡的重要性加权聚焦相结合。
+        </li>
+        <li>
+          所提方法能够获得高保真的多视角未来图像。我们将<strong>基于扩散模型的渲染器</strong>集成进自回归流程，
+          以重建逼真的环视细节。
+        </li>
       </ul>
     </div>
   </section>
@@ -255,8 +268,9 @@
       <div class="prose">
         <p>
           完整 X-Foresight 模型（<em>H</em>=21，启用 CLEF 与 TIS，1024 GPU 训练）与同等规模反应式 VLA 基线对比。
-          碰撞率下降 16%，横向 ADE 改进 6.4%，总体 CCES 在安全与合规维度获得主要收益 ——
-          正是以世界知识为驱动的预见性控制所期望的结果。
+          碰撞率下降 16.2%，横向 ADE 改进 6.4%；CCES 四个类别全部改进 ——
+          安全 9.1%、合规 8.2%、舒适 1.0%、效率 0.4%，总分由 3.8296 降至 3.6535（相对下降 4.6%）。
+          收益主要集中在安全与合规维度，与本工作的核心论点一致：长时世界因果监督提升安全关键场景的决策质量。
         </p>
       </div>
 
@@ -280,14 +294,15 @@
             </tr>
           </thead>
           <tbody>
-            <tr><td>基线 (H=1)</td><td>0.1675</td><td>1.1387</td><td>0.4153</td><td>2.9117</td><td>0.228</td><td>1.5413</td><td>5.1267</td><td>4.1090</td><td>0.6023</td><td>3.8319</td></tr>
-            <tr><td>X-Foresight（本工作）</td><td class="best">0.1567</td><td class="best">1.0982</td><td class="best">0.3789</td><td class="best">2.7924</td><td class="best">0.191</td><td class="best">1.3747</td><td>5.4912</td><td>4.2050</td><td class="best">0.5718</td><td class="best">3.7778</td></tr>
+            <tr><td>基线 (H=1)</td><td>0.1675</td><td>1.1387</td><td>0.4153</td><td>2.9117</td><td>0.228</td><td>0.9483</td><td>0.9505</td><td>0.9867</td><td>0.9441</td><td>3.8296</td></tr>
+            <tr><td>X-Foresight（本工作）</td><td class="best">0.1567</td><td class="best">1.0982</td><td class="best">0.3789</td><td class="best">2.7924</td><td class="best">0.191</td><td class="best">0.8708</td><td class="best">0.9413</td><td class="best">0.9831</td><td class="best">0.8583</td><td class="best">3.6535</td></tr>
           </tbody>
         </table>
       </div>
       <figcaption>
-        生产规模对比（1024 GPU）。ADE/FDE 单位为米；碰撞/合规/舒适/效率/安全为失败率百分比。
-        数值越低越好；列内最佳加粗。
+        生产规模对比（1024 GPU）。ADE/FDE 单位为米；碰撞为碰撞失败率百分比；
+        合规/舒适/效率/安全为无量纲比值 —— 由该类别下各指标相对 H=1 参考的失败率比值取非加权平均得到，
+        故 H=1 处总分恒等于 4。数值越低越好；列内最佳加粗。
       </figcaption>
 
       <h3>定性对比</h3>
@@ -341,13 +356,18 @@
             </tr>
           </thead>
           <tbody>
-            <tr><td>H = 1</td><td>0.1923</td><td>1.2409</td><td>0.4881</td><td>3.1935</td><td>0.263</td><td>1.6000</td><td>5.1475</td><td>4.1085</td><td>0.6903</td><td>4.0000</td></tr>
-            <tr><td>H = 6</td><td>0.1864</td><td>1.2196</td><td>0.4691</td><td>3.1178</td><td>0.262</td><td>1.5613</td><td>5.1132</td><td>4.1175</td><td>0.6690</td><td>3.9405</td></tr>
-            <tr><td>H = 21</td><td class="best">0.1810</td><td class="best">1.2110</td><td class="best">0.4571</td><td class="best">3.0988</td><td class="best">0.245</td><td class="best">1.5090</td><td class="best">5.0337</td><td class="best">4.1060</td><td class="best">0.6505</td><td class="best">3.8627</td></tr>
+            <tr><td>H = 1</td><td>0.1923</td><td>1.2409</td><td>0.4881</td><td>3.1935</td><td>0.263</td><td>1.0000</td><td>1.0000</td><td>1.0000</td><td>1.0000</td><td>4.0000</td></tr>
+            <tr><td>H = 6</td><td>0.1864</td><td>1.2196</td><td>0.4691</td><td>3.1178</td><td>0.262</td><td>0.9756</td><td class="best">0.9880</td><td class="best">0.9833</td><td>0.9927</td><td class="best">3.9396</td></tr>
+            <tr><td>H = 21</td><td class="best">0.1810</td><td class="best">1.2110</td><td class="best">0.4571</td><td class="best">3.0988</td><td class="best">0.245</td><td class="best">0.9533</td><td>1.0416</td><td>1.0094</td><td class="best">0.9481</td><td>3.9524</td></tr>
           </tbody>
         </table>
       </div>
-      <figcaption>所有行使用相同架构、数据、硬件（128 GPU）与训练步数，仅 <em>H</em> 不同。每个指标都随视野单调改进。</figcaption>
+      <figcaption>
+        所有行使用相同架构、数据、硬件（128 GPU）与训练步数，仅 <em>H</em> 不同。
+        合规/舒适/效率/安全为相对 H=1 参考的无量纲比值，总分为四者之和。
+        ADE、FDE、碰撞、合规与安全随视野单调改进；舒适与效率在 H=21 略有回退，
+        部分抵消了总分上的收益 —— 这恰是激发下文 CLEF 与 TIS 设计的优化难点。
+      </figcaption>
 
       <h3>CL · CLEF · TIS 消融</h3>
       <div class="tablewrap">
@@ -370,10 +390,10 @@
             </tr>
           </thead>
           <tbody>
-            <tr><td>继续 H=6</td><td>0.1741</td><td>1.1807</td><td>0.4344</td><td>3.0087</td><td>0.270</td><td>1.4833</td><td>5.1160</td><td>4.1795</td><td>0.6430</td><td>3.8697</td></tr>
-            <tr><td>+ H=21, CL</td><td>0.1718</td><td>1.1671</td><td>0.4277</td><td>2.9856</td><td>0.238</td><td>1.4890</td><td>5.1883</td><td>4.1530</td><td>0.6270</td><td>3.8576</td></tr>
-            <tr><td>+ H=21, CLEF</td><td class="best">0.1692</td><td class="best">1.1571</td><td class="best">0.4181</td><td>2.9421</td><td>0.230</td><td>1.4930</td><td>5.1990</td><td class="best">4.1360</td><td>0.6135</td><td>3.8385</td></tr>
-            <tr><td>+ H=21, TIS</td><td>0.1696</td><td>1.1578</td><td>0.4195</td><td class="best">2.9413</td><td class="best">0.216</td><td class="best">1.4760</td><td class="best">5.1523</td><td>4.1455</td><td class="best">0.6082</td><td class="best">3.8134</td></tr>
+            <tr><td>继续 H=6</td><td>0.1741</td><td>1.1807</td><td>0.4344</td><td>3.0087</td><td>0.270</td><td>0.9302</td><td>1.0515</td><td>0.9980</td><td>0.9726</td><td>3.9523</td></tr>
+            <tr><td>+ H=21, CL</td><td>0.1718</td><td>1.1671</td><td>0.4277</td><td>2.9856</td><td>0.238</td><td>0.9326</td><td>1.0106</td><td>1.0003</td><td>0.9310</td><td>3.8745</td></tr>
+            <tr><td>+ H=21, CLEF</td><td class="best">0.1692</td><td class="best">1.1571</td><td class="best">0.4181</td><td>2.9421</td><td>0.230</td><td>0.9320</td><td>1.0076</td><td class="best">0.9951</td><td>0.9387</td><td>3.8734</td></tr>
+            <tr><td>+ H=21, TIS</td><td>0.1696</td><td>1.1578</td><td>0.4195</td><td class="best">2.9413</td><td class="best">0.216</td><td class="best">0.9187</td><td class="best">1.0043</td><td>0.9953</td><td class="best">0.9264</td><td class="best">3.8447</td></tr>
           </tbody>
         </table>
       </div>
