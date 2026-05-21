@@ -35,6 +35,41 @@ body {
 /* Restore monospace only for code-like content. */
 code, pre, .bibtex { font-family: var(--mono); }
 
+/* ----- Reading-progress bar (top of viewport) --------------------------- */
+.scroll-progress {
+  position: fixed;
+  top: 0;
+  left: 0;
+  height: 2px;
+  width: 0;
+  background: var(--accent);
+  z-index: 100;
+  transition: width 80ms linear;
+  will-change: width;
+  pointer-events: none;
+}
+
+/* ----- Scroll-triggered section fade-in --------------------------------- */
+/* Scoped to .js so non-JS users see content immediately. Respects
+   prefers-reduced-motion by short-circuiting the rule. */
+.js section {
+  opacity: 0;
+  transform: translateY(24px);
+  transition: opacity .65s ease-out, transform .65s ease-out;
+  will-change: opacity, transform;
+}
+.js section.in-view {
+  opacity: 1;
+  transform: none;
+}
+@media (prefers-reduced-motion: reduce) {
+  .js section {
+    opacity: 1;
+    transform: none;
+    transition: none;
+  }
+}
+
 a { color: var(--accent); text-decoration: none; }
 a:hover { text-decoration: underline; }
 

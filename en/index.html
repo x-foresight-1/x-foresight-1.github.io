@@ -16,6 +16,8 @@
 </head>
 <body>
 
+<div class="scroll-progress" aria-hidden="true"></div>
+
 <nav class="nav">
   <a class="brand" href="./">
     <img class="brand-mark" src="../assets/img/logo.png" alt="XPENG" />
@@ -50,16 +52,6 @@
       <a class="badge" href="#paper">arXiv</a>
       <a class="badge" href="#demo">Demo</a>
     </div>
-    <div class="hero-fig">
-      <figure>
-        <img src="../assets/img/xforesight_main.png" alt="X-Foresight overview" />
-        <figcaption>
-          <strong>(A)</strong> Inference pipeline of X-Foresight.
-          <strong>(B)</strong> Closed-loop inference visualization (front camera shown).
-          <strong>(C)</strong> Model performance outperforms baseline on multiple benchmarks.
-        </figcaption>
-      </figure>
-    </div>
   </header>
 
   <!-- ====================== 01 INTRO / ABSTRACT ====================== -->
@@ -87,6 +79,15 @@
           renderer restores photorealistic appearance.
         </p>
       </div>
+
+      <figure>
+        <img src="../assets/img/xforesight_main.png" alt="X-Foresight overview" />
+        <figcaption>
+          <strong>(A)</strong> Inference pipeline of X-Foresight.
+          <strong>(B)</strong> Closed-loop inference visualization (front camera shown).
+          <strong>(C)</strong> Model performance outperforms baseline on multiple benchmarks.
+        </figcaption>
+      </figure>
 
       <div class="kv">
         <div class="stat"><div class="num">280k h</div><div class="lbl">Driving data</div></div>
@@ -442,7 +443,7 @@
             </tr>
           </thead>
           <tbody>
-            <tr><td>Camera Latent Decoder</td><td>31.93</td><td>36.73</td><td>558.79</td><td>606.60</td></tr>
+            <tr><td>Camera Latent Decoder</td><td>10.97</td><td>11.82</td><td>135.56</td><td>158.39</td></tr>
             <tr><td>Vision Renderer</td><td class="best">1.51</td><td class="best">2.84</td><td class="best">11.28</td><td class="best">29.52</td></tr>
           </tbody>
         </table>

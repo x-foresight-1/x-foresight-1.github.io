@@ -16,6 +16,8 @@
 </head>
 <body>
 
+<div class="scroll-progress" aria-hidden="true"></div>
+
 <nav class="nav">
   <a class="brand" href="./">
     <img class="brand-mark" src="../assets/img/logo.png" alt="XPENG" />
@@ -50,16 +52,6 @@
       <a class="badge" href="#paper">arXiv</a>
       <a class="badge" href="#demo">演示</a>
     </div>
-    <div class="hero-fig">
-      <figure>
-        <img src="../assets/img/xforesight_main.png" alt="X-Foresight 总览" />
-        <figcaption>
-          <strong>(A)</strong> X-Foresight 推理流程。
-          <strong>(B)</strong> 闭环推理可视化（仅显示前置相机）。
-          <strong>(C)</strong> 模型在多个基准上超越基线。
-        </figcaption>
-      </figure>
-    </div>
   </header>
 
   <!-- ====================== 01 简介 ====================== -->
@@ -79,6 +71,15 @@
           基于扩散模型的多视角渲染器恢复像素级的高保真外观。
         </p>
       </div>
+
+      <figure>
+        <img src="../assets/img/xforesight_main.png" alt="X-Foresight 总览" />
+        <figcaption>
+          <strong>(A)</strong> X-Foresight 推理流程。
+          <strong>(B)</strong> 闭环推理可视化（仅显示前置相机）。
+          <strong>(C)</strong> 模型在多个基准上超越基线。
+        </figcaption>
+      </figure>
 
       <div class="kv">
         <div class="stat"><div class="num">28万 h</div><div class="lbl">驾驶数据</div></div>
@@ -410,7 +411,7 @@
             </tr>
           </thead>
           <tbody>
-            <tr><td>相机潜空间解码器</td><td>31.93</td><td>36.73</td><td>558.79</td><td>606.60</td></tr>
+            <tr><td>相机潜空间解码器</td><td>10.97</td><td>11.82</td><td>135.56</td><td>158.39</td></tr>
             <tr><td>视觉渲染器</td><td class="best">1.51</td><td class="best">2.84</td><td class="best">11.28</td><td class="best">29.52</td></tr>
           </tbody>
         </table>
