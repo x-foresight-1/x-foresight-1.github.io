@@ -23,6 +23,7 @@
     <img class="brand-mark" src="../assets/img/logo.png" alt="XPENG" />
     <img class="brand-name" src="../assets/img/company_name.png" alt="XPENG" />
   </a>
+  <button class="nav-toggle" type="button" aria-label="菜单" aria-expanded="false">☰</button>
   <ul class="sections">
     <li><a href="#intro">简介</a></li>
     <li><a href="#principle">核心思想</a></li>
@@ -55,7 +56,7 @@
   </header>
 
   <!-- ====================== 01 简介 ====================== -->
-  <section id="intro">
+  <section id="intro" data-num="01">
     <div class="container">
       <div class="section-label">01 — 简介</div>
       <h2>为什么 VLA 需要预测式世界建模？</h2>
@@ -100,7 +101,7 @@
   </section>
 
   <!-- ====================== 02 核心思想 ====================== -->
-  <section id="principle" class="alt">
+  <section id="principle" class="alt" data-num="02">
     <div class="container">
       <div class="section-label">02 — 核心思想</div>
       <h2>分块预见，而非邻帧外推</h2>
@@ -129,7 +130,7 @@
   </section>
 
   <!-- ====================== 03 架构 ====================== -->
-  <section id="architecture">
+  <section id="architecture" data-num="03">
     <div class="container">
       <div class="section-label">03 — 架构</div>
       <h2>大型驾驶模型 + 视觉渲染器</h2>
@@ -190,7 +191,7 @@
   </section>
 
   <!-- ====================== 04 数据 ====================== -->
-  <section id="data" class="alt">
+  <section id="data" class="alt" data-num="04">
     <div class="container">
       <div class="section-label">04 — 数据</div>
       <h2>工业规模的多相机驾驶数据</h2>
@@ -218,7 +219,7 @@
   </section>
 
   <!-- ====================== 05 演示 ====================== -->
-  <section id="demo">
+  <section id="demo" data-num="05">
     <div class="container">
       <div class="section-label">05 — 演示</div>
       <h2>闭环回放</h2>
@@ -252,7 +253,7 @@
   </section>
 
   <!-- ====================== 06 结果 ====================== -->
-  <section id="results" class="alt">
+  <section id="results" class="alt" data-num="06">
     <div class="container">
       <div class="section-label">06 — 结果</div>
       <h2>生产规模对比</h2>
@@ -432,7 +433,7 @@
   </section>
 
   <!-- ====================== 07 论文 ====================== -->
-  <section id="paper">
+  <section id="paper" data-num="07">
     <div class="container">
       <div class="section-label">07 — 技术报告</div>
       <h2>论文、引用与贡献者</h2>
@@ -442,13 +443,16 @@
         </p>
       </div>
 
-      <pre class="bibtex">@techreport{xforesight2026,
+      <div class="bibtex-wrap">
+        <button class="bibtex-copy" type="button">复制</button>
+        <pre class="bibtex">@techreport{xforesight2026,
   title  = {X-Foresight: a Predictive World Model Foreseeing High-Fidelity Multi-view Cameras with Real-Time Action Control},
   author = {{PWM Team}},
   year   = {2026},
   institution = {XPeng Inc.},
   url    = {https://arxiv.org/abs/XXXX.XXXXX}
 }</pre>
+      </div>
 
       <h3>贡献者</h3>
       <dl class="contributors">

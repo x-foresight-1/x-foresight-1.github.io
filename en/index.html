@@ -23,6 +23,7 @@
     <img class="brand-mark" src="../assets/img/logo.png" alt="XPENG" />
     <img class="brand-name" src="../assets/img/company_name.png" alt="XPENG" />
   </a>
+  <button class="nav-toggle" type="button" aria-label="Menu" aria-expanded="false">☰</button>
   <ul class="sections">
     <li><a href="#intro">Intro</a></li>
     <li><a href="#principle">Principle</a></li>
@@ -55,7 +56,7 @@
   </header>
 
   <!-- ====================== 01 INTRO / ABSTRACT ====================== -->
-  <section id="intro">
+  <section id="intro" data-num="01">
     <div class="container">
       <div class="section-label">01 — Introduction</div>
       <h2>Why predictive world modeling for VLA?</h2>
@@ -108,7 +109,7 @@
   </section>
 
   <!-- ====================== 02 PRINCIPLE ====================== -->
-  <section id="principle" class="alt">
+  <section id="principle" class="alt" data-num="02">
     <div class="container">
       <div class="section-label">02 — Principle</div>
       <h2>Chunk-wise foresight, not adjacent-frame guessing</h2>
@@ -143,7 +144,7 @@
   </section>
 
   <!-- ====================== 03 ARCHITECTURE ====================== -->
-  <section id="architecture">
+  <section id="architecture" data-num="03">
     <div class="container">
       <div class="section-label">03 — Architecture</div>
       <h2>Large Drive Model + Vision Renderer</h2>
@@ -209,7 +210,7 @@
   </section>
 
   <!-- ====================== 04 DATA ====================== -->
-  <section id="data" class="alt">
+  <section id="data" class="alt" data-num="04">
     <div class="container">
       <div class="section-label">04 — Data</div>
       <h2>Industry-scale multi-camera driving</h2>
@@ -240,7 +241,7 @@
   </section>
 
   <!-- ====================== 05 DEMOS ====================== -->
-  <section id="demo">
+  <section id="demo" data-num="05">
     <div class="container">
       <div class="section-label">05 — Demos</div>
       <h2>Closed-loop rollouts</h2>
@@ -276,7 +277,7 @@
   </section>
 
   <!-- ====================== 06 RESULTS ====================== -->
-  <section id="results" class="alt">
+  <section id="results" class="alt" data-num="06">
     <div class="container">
       <div class="section-label">06 — Results</div>
       <h2>Production-scale headline</h2>
@@ -464,7 +465,7 @@
   </section>
 
   <!-- ====================== 07 PAPER ====================== -->
-  <section id="paper">
+  <section id="paper" data-num="07">
     <div class="container">
       <div class="section-label">07 — Tech Report</div>
       <h2>Paper, citation, contributors</h2>
@@ -475,13 +476,16 @@
         </p>
       </div>
 
-      <pre class="bibtex">@techreport{xforesight2026,
+      <div class="bibtex-wrap">
+        <button class="bibtex-copy" type="button">Copy</button>
+        <pre class="bibtex">@techreport{xforesight2026,
   title  = {X-Foresight: a Predictive World Model Foreseeing High-Fidelity Multi-view Cameras with Real-Time Action Control},
   author = {{PWM Team}},
   year   = {2026},
   institution = {XPeng Inc.},
   url    = {https://arxiv.org/abs/XXXX.XXXXX}
 }</pre>
+      </div>
 
       <h3>Contributors</h3>
       <dl class="contributors">

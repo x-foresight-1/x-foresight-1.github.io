@@ -159,6 +159,90 @@
     });
   });
 
+  // ---- Figure lightbox ----------------------------------------------------
+  (function () {
+    var lb = document.createElement('div');
+    lb.className = 'lightbox';
+    lb.setAttribute('aria-hidden', 'true');
+    lb.innerHTML = '<button class="lightbox-close" aria-label="Close (Esc)" type="button">×</button><img alt="" />';
+    document.body.appendChild(lb);
+    var lbImg = lb.querySelector('img');
+    var lbClose = lb.querySelector('.lightbox-close');
+
+    function open(src, alt) {
+      lbImg.src = src;
+      lbImg.alt = alt || '';
+      lb.classList.add('open');
+      lb.setAttribute('aria-hidden', 'false');
+      document.body.style.overflow = 'hidden';
+    }
+    function close() {
+      lb.classList.remove('open');
+      lb.setAttribute('aria-hidden', 'true');
+      document.body.style.overflow = '';
+    }
+
+    document.querySelectorAll('figure img').forEach(function (img) {
+      img.addEventListener('click', function () {
+        open(img.currentSrc || img.src, img.alt);
+      });
+    });
+    lb.addEventListener('click', function (e) {
+      if (e.target === lb || e.target === lbClose) close();
+    });
+    document.addEventListener('keydown', function (e) {
+      if (e.key === 'Escape' && lb.classList.contains('open')) close();
+    });
+  })();
+
+  // ---- Mobile nav hamburger -----------------------------------------------
+  var navToggle = document.querySelector('.nav-toggle');
+  var navList = document.querySelector('.nav ul.sections');
+  if (navToggle && navList) {
+    navToggle.addEventListener('click', function () {
+      var open = navList.classList.toggle('open');
+      navToggle.setAttribute('aria-expanded', open ? 'true' : 'false');
+    });
+    navList.querySelectorAll('a').forEach(function (a) {
+      a.addEventListener('click', function () {
+        navList.classList.remove('open');
+        navToggle.setAttribute('aria-expanded', 'false');
+      });
+    });
+  }
+
+  // ---- BibTeX copy button -------------------------------------------------
+  var pageLang = (document.documentElement.getAttribute('lang') || '').toLowerCase();
+  var copiedLabel = pageLang.indexOf('zh') === 0 ? '已复制' : 'Copied';
+  document.querySelectorAll('.bibtex-copy').forEach(function (btn) {
+    btn.addEventListener('click', function () {
+      var pre = btn.parentNode.querySelector('.bibtex');
+      if (!pre) return;
+      var text = pre.textContent;
+      var orig = btn.textContent;
+      function ok() {
+        btn.textContent = copiedLabel;
+        btn.classList.add('copied');
+        setTimeout(function () {
+          btn.textContent = orig;
+          btn.classList.remove('copied');
+        }, 1500);
+      }
+      if (navigator.clipboard && window.isSecureContext) {
+        navigator.clipboard.writeText(text).then(ok).catch(function () { /* ignore */ });
+      } else {
+        var ta = document.createElement('textarea');
+        ta.value = text;
+        ta.style.position = 'fixed';
+        ta.style.opacity = '0';
+        document.body.appendChild(ta);
+        ta.select();
+        try { document.execCommand('copy'); ok(); } catch (e) { /* ignore */ }
+        document.body.removeChild(ta);
+      }
+    });
+  });
+
   // Remember the user's language choice so the toggle is sticky on reload.
   try {
     var page = document.documentElement.getAttribute('lang') || '';
