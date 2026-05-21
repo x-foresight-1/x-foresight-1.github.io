@@ -93,8 +93,7 @@ a:hover { text-decoration: underline; }
   display: flex; align-items: center; gap: 10px;
 }
 .nav .brand img { display: block; width: auto; }
-.nav .brand .brand-mark { height: 24px; }
-.nav .brand .brand-name { height: 15px; }
+.nav .brand .brand-full { height: 38px; }
 .nav ul {
   list-style: none;
   display: flex;
@@ -114,19 +113,11 @@ a:hover { text-decoration: underline; }
   color: var(--accent);
   border-bottom-color: var(--accent);
 }
-.nav .lang {
-  margin-left: 20px;
-  font-size: 13px;
-}
-.nav .lang a { color: var(--muted); padding: 0 4px; }
-.nav .lang a.active { color: var(--accent); font-weight: 600; }
-.nav .lang span { color: var(--rule); }
-
 @media (max-width: 760px) {
   .nav { padding: 0 12px; overflow-x: auto; }
   .nav ul { gap: 12px; }
   .nav ul a { font-size: 13px; }
-  .nav .brand .brand-name { display: none; }
+  .nav .brand .brand-full { height: 30px; }
 }
 
 /* ----- Layout shell ------------------------------------------------------ */
@@ -689,7 +680,6 @@ figure img:hover {
   }
   .nav ul.sections.open { display: flex; }
   .nav ul.sections a { font-size: 15px; padding: 10px 0; }
-  .nav .lang { margin-left: 0; }
 }
 
 /* ----- v3: BibTeX copy button ------------------------------------------ */

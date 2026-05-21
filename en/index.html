@@ -20,8 +20,7 @@
 
 <nav class="nav">
   <a class="brand" href="./">
-    <img class="brand-mark" src="../assets/img/logo.png" alt="XPENG" />
-    <img class="brand-name" src="../assets/img/company_name.png" alt="XPENG" />
+    <img class="brand-full" src="../assets/img/full_logo.png" alt="XPENG" />
   </a>
   <button class="nav-toggle" type="button" aria-label="Menu" aria-expanded="false">☰</button>
   <ul class="sections">
@@ -32,11 +31,6 @@
     <li><a href="#results">Results</a></li>
     <li><a href="#paper">Paper</a></li>
   </ul>
-  <span class="lang">
-    <a href="../en/" class="active">EN</a>
-    <span>·</span>
-    <a href="../zh/">中文</a>
-  </span>
 </nav>
 
 <main>
@@ -296,12 +290,15 @@
       <div class="prose">
         <p>
           The full X-Foresight model (<em>H</em>=21 with CLEF and TIS, trained on 1024 GPUs) is
-          compared against the reactive VLA baseline trained at the same scale. Collision rate
-          drops 16.2 %, lateral ADE improves 6.4 %, and all four CCES categories improve —
-          Safety by 9.1 %, Compliance by 8.2 %, Comfort by 1.0 %, and Efficiency by 0.4 % —
-          driving the aggregate Total from 3.8296 to 3.6535 (4.6 % relative). Gains concentrate
-          in Safety and Compliance, consistent with the central claim that long-horizon
-          world-causality supervision improves safety-critical decision quality.
+          compared against a baseline trained at the same scale. Lateral and longitudinal ADE
+          improve by 6.4 % and 3.6 % (0.1675 → 0.1567 lat; 1.1387 → 1.0982 long), and lateral
+          and longitudinal FDE by 8.8 % and 4.1 % (0.4153 → 0.3789 lat; 2.9117 → 2.7924 long).
+          Collision rate drops from 0.228 % to 0.191 %, a 16.2 % relative reduction. All four
+          CCES categories improve — Safety by 9.1 %, Compliance by 8.2 %, Comfort by 1.0 %, and
+          Efficiency by 0.4 % — driving the aggregate Total from 3.8296 to 3.6535, a 4.6 %
+          relative reduction. Gains concentrate in Safety and Compliance, consistent with the
+          central claim that long-horizon world-causality supervision improves safety-critical
+          decision quality.
         </p>
       </div>
 
@@ -325,16 +322,16 @@
             </tr>
           </thead>
           <tbody>
-            <tr><td>Baseline (H=1)</td><td>0.1675</td><td>1.1387</td><td>0.4153</td><td>2.9117</td><td>0.228</td><td>0.9483</td><td>0.9505</td><td>0.9867</td><td>0.9441</td><td>3.8296</td></tr>
-            <tr><td>X-Foresight (ours)</td><td class="best">0.1567</td><td class="best">1.0982</td><td class="best">0.3789</td><td class="best">2.7924</td><td class="best">0.191</td><td class="best">0.8708</td><td class="best">0.9413</td><td class="best">0.9831</td><td class="best">0.8583</td><td class="best">3.6535</td></tr>
+            <tr><td>Baseline</td><td>0.1675</td><td>1.1387</td><td>0.4153</td><td>2.9117</td><td>0.228</td><td>0.9483</td><td>0.9505</td><td>0.9867</td><td>0.9441</td><td>3.8296</td></tr>
+            <tr><td>X-Foresight</td><td class="best">0.1567</td><td class="best">1.0982</td><td class="best">0.3789</td><td class="best">2.7924</td><td class="best">0.191</td><td class="best">0.8708</td><td class="best">0.9413</td><td class="best">0.9831</td><td class="best">0.8583</td><td class="best">3.6535</td></tr>
           </tbody>
         </table>
       </div>
       <figcaption>
-        Production-scale comparison (1024 GPUs). ADE/FDE in metres; Coll. is the percentage
-        collision fail rate; Compl./Comfort/Eff./Safety are unitless ratios — each is the
-        unweighted mean of its per-metric fail-rate ratios to the H=1 reference, so Total = 4
-        at H=1 by construction. Lower is better; best in column shown in bold.
+        Production-scale comparison against the baseline, both trained on 1024 GPUs.
+        X-Foresight used <em>H</em>=21 with CLEF and TIS. ADE/FDE in metres; Coll. is the
+        percentage collision fail rate; Compl., Comfort, Eff., and Safety are unitless ratios
+        as in the H-horizon table. Lower is better; best in column shown in bold.
       </figcaption>
 
       <h3>Qualitative comparisons</h3>
