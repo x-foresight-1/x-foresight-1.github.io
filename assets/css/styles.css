@@ -324,6 +324,10 @@ figcaption {
 }
 figcaption strong { color: var(--ink-soft); }
 
+/* Utility: render a figure 20% narrower than the column, centered. */
+figure.fig-small img { max-width: 80%; margin: 0 auto; }
+figure.fig-small figcaption { max-width: 80%; margin-left: auto; margin-right: auto; }
+
 .figrow {
   display: grid;
   grid-template-columns: 1fr 1fr;
