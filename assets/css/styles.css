@@ -361,10 +361,16 @@ figure.fig-small figcaption { max-width: 80%; margin-left: auto; margin-right: a
 }
 
 /* ----- Tables ----------------------------------------------------------- */
-.tablewrap { overflow-x: auto; margin: 16px 0 8px; }
+.tablewrap {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  margin: 16px 0 8px;
+}
 table.results {
   border-collapse: collapse;
   width: 100%;
+  /* Keep columns from squashing on narrow viewports — .tablewrap scrolls. */
+  min-width: 720px;
   font-size: 14px;
   font-family: var(--serif);
   font-variant-numeric: tabular-nums;
@@ -399,6 +405,27 @@ table.results tbody td:first-child {
 table.results tbody tr:hover { background: var(--bg-alt); }
 table.results .best { font-weight: 700; color: var(--accent); }
 table.results .grp { color: var(--muted); font-weight: 500; }
+
+/* On narrow viewports the table is wider than the column and scrolls
+   horizontally inside .tablewrap. A small hint label tells users that. */
+@media (max-width: 760px) {
+  .tablewrap { position: relative; }
+  .tablewrap::before {
+    content: "← swipe →";
+    display: block;
+    font-family: var(--sans);
+    font-size: 11px;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--muted);
+    text-align: right;
+    padding: 0 2px 4px;
+  }
+  /* Localized hint for the Chinese page. */
+  html[lang^="zh"] .tablewrap::before { content: "← 左右滑动 →"; }
+  table.results { font-size: 13px; }
+  table.results th, table.results td { padding: 6px 10px; }
+}
 
 /* ----- Demos placeholder ------------------------------------------------ */
 .demo-placeholder {
