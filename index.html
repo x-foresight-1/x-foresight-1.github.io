@@ -6,22 +6,10 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta name="description" content="X-Foresight project page (redirecting…)" />
   <link rel="icon" type="image/png" href="./assets/img/logo.png" />
-  <script>
-    (function () {
-      var saved = null;
-      try { saved = localStorage.getItem('xforesight.lang'); } catch (e) {}
-      var nav = (navigator.language || navigator.userLanguage || 'en').toLowerCase();
-      var target = saved
-        ? (saved === 'zh' ? './zh/' : './en/')
-        : (nav.indexOf('zh') === 0 ? './zh/' : './en/');
-      // Replace so the redirect doesn't pollute browser history.
-      window.location.replace(target);
-    })();
-  </script>
+  <script>window.location.replace('./en/');</script>
   <meta http-equiv="refresh" content="0; url=./en/" />
 </head>
 <body style="font-family:system-ui,sans-serif;color:#666;padding:32px;">
-  Loading X-Foresight … if nothing happens, choose
-  <a href="./en/">English</a> or <a href="./zh/">中文</a>.
+  Loading X-Foresight … if nothing happens, open <a href="./en/">the site</a>.
 </body>
 </html>
