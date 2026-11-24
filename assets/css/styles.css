@@ -887,9 +887,12 @@ table.results tbody tr:has(td.best):hover {
   border-bottom-color: transparent;
   backdrop-filter: none; -webkit-backdrop-filter: none;
 }
-.nav .brand .brand-white { display: none; }
-.nav.on-hero .brand .brand-full { display: none; }
-.nav.on-hero .brand .brand-white { display: block; }  /* white-on-transparent copy of the opaque black-on-white logo */
+/* One logo for both states: full_logo_white.png is the transparent copy of the opaque
+   black-on-white full_logo.png. On the light nav it is painted black (identical to the
+   original on white, and no white box when the translucent nav passes over the dark
+   Demos band or footer); over the cover it stays white. */
+.nav .brand .brand-full { filter: brightness(0); }
+.nav.on-hero .brand .brand-full { filter: none; }
 .nav.on-hero .nav-toggle { color: var(--cover-ink); }
 @media (min-width: 761px) {
   .nav.on-hero ul a { color: var(--cover-ink-soft); }
