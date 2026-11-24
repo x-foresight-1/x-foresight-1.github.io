@@ -195,6 +195,33 @@
     });
   })();
 
+  // ---- Cover: dark nav while it floats over the cover; pause the cover video off-screen
+  var navEl = document.querySelector('.nav');
+  var cover = document.querySelector('.hero-cine');
+  if (navEl && cover) {
+    var coverVideo = cover.querySelector('.hero-bg');
+    function updateNav() {
+      var bottom = cover.getBoundingClientRect().bottom;
+      navEl.classList.toggle('on-hero', bottom > navEl.offsetHeight);
+    }
+    updateNav();
+    window.addEventListener('scroll', updateNav, { passive: true });
+    window.addEventListener('resize', updateNav, { passive: true });
+    if (coverVideo) {
+      if (reducedMotion) {
+        coverVideo.removeAttribute('autoplay');
+        try { coverVideo.pause(); } catch (e) { /* ignore */ }
+      } else if ('IntersectionObserver' in window) {
+        new IntersectionObserver(function (entries) {
+          entries.forEach(function (e) {
+            if (e.isIntersecting) { var p = coverVideo.play(); if (p && p.catch) p.catch(function () {}); }
+            else coverVideo.pause();
+          });
+        }).observe(cover);
+      }
+    }
+  }
+
   // ---- Mobile nav hamburger -----------------------------------------------
   var navToggle = document.querySelector('.nav-toggle');
   var navList = document.querySelector('.nav ul.sections');

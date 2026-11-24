@@ -11,7 +11,7 @@
   <link rel="icon" type="image/png" href="../assets/img/logo.png" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Source+Serif+4:opsz,wght@8..60,400;8..60,500;8..60,600;8..60,700&family=JetBrains+Mono:wght@400;500;600&family=Noto+Sans+SC:wght@400;500;600&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Inter+Tight:wght@500;600;700&family=JetBrains+Mono:wght@400;500;600&family=Noto+Sans+SC:wght@400;500;600&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="../assets/css/styles.css" />
 </head>
 <body>
@@ -21,6 +21,7 @@
 <nav class="nav">
   <a class="brand" href="./">
     <img class="brand-full" src="../assets/img/full_logo.png" alt="XPENG" />
+    <img class="brand-full brand-white" src="../assets/img/full_logo_white.png" alt="" aria-hidden="true" />
   </a>
   <button class="nav-toggle" type="button" aria-label="Menu" aria-expanded="false">☰</button>
   <ul class="sections">
@@ -36,15 +37,25 @@
 <main>
 
   <!-- ====================== HERO ====================== -->
-  <header class="hero">
-    <h1>X-Foresight: A Joint Vision-Action Causal Forecasting Network via Predictive World Modeling</h1>
-    <div class="authors">PWM Team</div>
-    <div class="affil">
-      <img src="../assets/img/logo.png" alt="XPeng" /> XPeng Inc. · Technical Report · 2026
+  <header class="hero hero-cine" id="top">
+    <video class="hero-bg" autoplay muted loop playsinline preload="auto" poster="../assets/img/hero_poster.jpg" aria-hidden="true">
+      <source src="../assets/videos/hero.mp4" type="video/mp4" />
+    </video>
+    <div class="hero-shade" aria-hidden="true"></div>
+    <div class="hero-inner">
+      <div class="hero-eyebrow"><span class="dot" aria-hidden="true"></span>XPeng PWM Team</div>
+      <h1 class="hero-title"><span class="x">X-</span><span class="fs">Foresight</span></h1>
+      <p class="hero-sub">A Joint Vision-Action Causal Forecasting Network via Predictive World Modeling</p>
+      <div class="hero-cta">
+        <a class="hero-btn" href="#demo">Watch the rollouts <span aria-hidden="true">&darr;</span></a>
+        <a class="hero-link" href="https://arxiv.org/abs/2605.24892" target="_blank" rel="noopener">Technical report <span aria-hidden="true">&#8599;</span></a>
+      </div>
+      <p class="hero-note"><span class="dot" aria-hidden="true"></span>Playing behind this title: X-Foresight&rsquo;s closed-loop surround-view rollouts.</p>
     </div>
-    <div class="badges">
-      <a class="badge" href="https://arxiv.org/abs/2605.24892" target="_blank" rel="noopener">arXiv</a>
-      <a class="badge" href="#demo">Demo</a>
+    <div class="hero-stats">
+      <div class="hero-stat"><b>6 s</b><span>of surround-view future, foreseen</span></div>
+      <div class="hero-stat"><b>13.8T</b><span>tokens of driving data</span></div>
+      <div class="hero-stat"><b>16.2%</b><span>lower collision rate than the baseline</span></div>
     </div>
   </header>
 
